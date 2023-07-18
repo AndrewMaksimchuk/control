@@ -1,0 +1,10 @@
+{
+  "name": "control",
+  "main": "index.mjs",
+  "devDependencies": {
+    "@types/node": "^20.4.2"
+  },
+  "dependencies": {
+    "@octokit/core": "^5.0.0"
+  }
+}
