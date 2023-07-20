@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+projectdir=$(dirname $0)
+
+function update {
+  echo "Updating..."
+  node "$projectdir/index.mjs"
+  exit
+}
+
+function main {
+  dashboard_file="$projectdir/dashboard.txt"
+  dashboard_stat=$(stat -c %w $dashboard_file)
+  dashboard_day=$(
+    echo $dashboard_stat |
+      cut -d- -f3 |
+      cut -d' ' -f1
+  )
+
+  local current_day=$(date +"%d")
+
+  if [[ $dashboard_day = $current_day ]]; then
+    cat $dashboard_file
+    echo "This is today dashboard"
+    echo "For update dashboard, run command 'control update'"
+    exit
+  fi
+
+  update
+  exit
+}
+
+function inwork {
+  job_file="$projectdir/current_job.txt"
+
+  if [[ ! -f $job_file ]]; then
+    echo "You don\`t have current job"
+    towork
+  fi
+
+  job_stat=$(stat -c %w $job_file)
+  current_job_dat=$(
+    echo $job_stat |
+      cut -d- -f3 |
+      cut -d' ' -f1
+  )
+
+  local current_day=$(date +"%d")
+
+  if [[ $current_job_dat = $current_day ]]; then
+    cat $job_file
+    exit
+  fi
+}
+
+function towork {
+  # $1 - repository name
+  # $2 - issue number(hash)
+  local prompt="Enter a repo name and issue number(hash) "
+  read -p "$prompt" repo iss
+  node "$projectdir/to-work.mjs" "$repo" "$iss"
+  cat "$projectdir/current_job.txt"
+  exit
+}
+
+function donework {
+  rm -f "$projectdir/current_job.txt"
+  echo "Job done"
+}
+
+# if arguments is 0, show dashboard(fetch 
+# new data or get from file(today))
+if [ $# -eq 0 ]; then
+  main
+fi
+
+# if $1 == update - fetch new data
+if [[ $1 = "update" ]]; then
+  update
+fi
+
+# if $1 == in-work - get current project 
+# and issue in work
+if [[ $1 = "in-work" ]]; then
+  inwork
+fi
+
+# if $1 == to-work - set current project 
+# and issue in work
+if [[ $1 = "to-work" ]]; then
+  towork
+fi
+
+# if $1 == done - set current project 
+# and issue is done
+# remove file 'current_job.txt'
+if [[ $1 = "done" ]]; then
+  donework
+fi

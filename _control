@@ -1,0 +1,13 @@
+#compdef control
+# Add competion for shell(zsh)
+
+
+local -a subcmds
+subcmds=(
+ 'update:Show dashboard(fetch new data)' 
+ 'in-work:get current project and issue in work' 
+ 'to-work:set current project and issue in work' 
+ 'done:set current project and issue is done' 
+)
+
+_describe 'command' subcmds

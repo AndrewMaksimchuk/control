@@ -1,0 +1,17 @@
+export const repositories = [
+  "radiomag",
+  "kids_tablet",
+  "learn_words",
+  "readbook",
+  "note",
+  "spending",
+  "dotfiles",
+  "driver_bot",
+  "hooks",
+  "nodejsma",
+  "pomodoro",
+  "vodiy",
+  "web_builder",
+  "web-shell",
+  "control",
+]

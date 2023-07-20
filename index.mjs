@@ -1,36 +1,14 @@
 #!/usr/bin/env node
 
-import { Octokit } from "@octokit/core";
+import { dirname, join } from "path";
+import { appendFile, unlinkSync, existsSync } from "fs";
+import { octokit } from "./gh-api.mjs";
+import { repositories } from "./repositories.mjs"
+import { owner, dashboard } from "./variales.mjs";
 
-export const repositories = [
-  // "radiomag",
-  // "kids_tablet",
-  // "learn_words",
-  "readbook",
-  // "note",
-  "spending",
-  // "dotfiles",
-  // "driver_bot",
-  // "hooks",
-  // "nodejsma",
-  // "pomodoro",
-  // "vodiy",
-  // "web_builder",
-  // "web-shell",
-]
-
-const TOKEN = process.env.GITHUB_USER_TOKEN
-if (TOKEN === undefined) {
-  process.stdout.write(
-    "Github user token is undefined!\n\
-      Please set to GITHUB_USER_TOKEN variable.\n"
-  )
-  process.exit(1)
-}
-
-const owner = "AndrewMaksimchuk"
-const octokit = new Octokit({ auth: TOKEN })
 const columns = process.stdout.columns
+const pwd = dirname(import.meta.url).slice(7)
+const filePath = join(pwd, dashboard)
 
 const getIssues = async (repo) => {
   return await octokit.request(
@@ -45,6 +23,10 @@ const getIssues = async (repo) => {
   );
 }
 
+const toFile = (data) => {
+  appendFile(filePath, data + "\n", "utf-8", () => { })
+}
+
 const print = async (repo) => {
   const { data } = await getIssues(repo)
   const issues = data
@@ -54,29 +36,37 @@ const print = async (repo) => {
     return;
   }
 
-  console.log(`\x1B[1mRepository: \x1B[0m${repo}`)
-  console.log(`Issues status -> open`)
+  const textRepo = `Repository: `
+  const textIssues = `Opened issues`
+  console.log(`\x1B[1m${textRepo}\x1B[0m${repo}`)
+  console.log(textIssues)
+  toFile(textRepo + repo)
+  toFile(textIssues)
   const headerTitle = `TITLE`.padEnd(50)
   const headerUrl = `URL`
   const delimiter = " ".repeat(2)
+  const text = headerTitle +
+    delimiter + headerUrl;
 
   console.log(
     '\x1B[1m' +
-    headerTitle + 
-    delimiter +
-    headerUrl + 
+    text +
     '\x1B[0m'
   )
+
+  toFile(text)
 
   issues.forEach((issue) => {
     const title = issue
       .title
       .padEnd(50)
-    console.log(
-      `${title}${delimiter}${issue.html_url}`
-    )
+    const text = `${title}${delimiter}${issue.html_url}`
+    console.log(text)
+    toFile(text)
   })
-  console.log("=".repeat(columns))
+  const delimiterRepo = "=".repeat(columns)
+  console.log(delimiterRepo)
+  toFile(delimiterRepo)
 }
 
 const printHeader = () => {
@@ -84,8 +74,14 @@ const printHeader = () => {
   const start = Math.floor(columns / 2)
   const header = text.padStart(start, " ")
   console.log(header)
+  toFile(header)
 }
 
 process.stdout.write("\x1Bc")
+
+if (existsSync(filePath)) {
+  unlinkSync(filePath)
+}
+
 printHeader()
 repositories.map((repo) => print(repo))

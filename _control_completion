@@ -1,0 +1,9 @@
+# Add competion for shell(bash)
+
+
+function _control() {
+    COMPREPLY=('update' 'in-work' 'to-work' 'done')
+}
+
+
+complete -F _control control
