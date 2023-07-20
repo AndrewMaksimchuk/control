@@ -35,6 +35,7 @@ function inwork {
 
   if [[ ! -f $job_file ]]; then
     echo "You don\`t have current job"
+    [[ $1 = "-e" ]] && exit
     towork
   fi
 
@@ -81,8 +82,9 @@ fi
 
 # if $1 == in-work - get current project 
 # and issue in work
+# $2 - if is "-e", exit
 if [[ $1 = "in-work" ]]; then
-  inwork
+  inwork $2
 fi
 
 # if $1 == to-work - set current project 
