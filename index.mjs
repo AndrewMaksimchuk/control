@@ -37,10 +37,13 @@ const print = async (repo) => {
   }
 
   const textRepo = `Repository: `
+  const linkRepo = `https://github.com/${owner}/${repo}`
   const textIssues = `Opened issues`
   console.log(`\x1B[1m${textRepo}\x1B[0m${repo}`)
+  console.log(linkRepo)
   console.log(textIssues)
   toFile(textRepo + repo)
+  toFile(linkRepo)
   toFile(textIssues)
   const headerTitle = `TITLE`.padEnd(50)
   const headerUrl = `URL`
