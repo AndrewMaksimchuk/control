@@ -31,7 +31,7 @@ function main {
 }
 
 function inwork {
-  job_file="$projectdir/current_job.txt"
+  local job_file="$projectdir/current_job.txt"
 
   if [[ ! -f $job_file ]]; then
     echo "You don\`t have current job"
@@ -39,19 +39,8 @@ function inwork {
     towork
   fi
 
-  job_stat=$(stat -c %w $job_file)
-  current_job_dat=$(
-    echo $job_stat |
-      cut -d- -f3 |
-      cut -d' ' -f1
-  )
-
-  local current_day=$(date +"%d")
-
-  if [[ $current_job_dat = $current_day ]]; then
-    cat $job_file
-    exit
-  fi
+  cat $job_file
+  exit
 }
 
 function towork {
@@ -69,7 +58,7 @@ function donework {
   echo "Job done"
 }
 
-# if arguments is 0, show dashboard(fetch 
+# if arguments is 0, show dashboard(fetch
 # new data or get from file(today))
 if [ $# -eq 0 ]; then
   main
@@ -80,20 +69,20 @@ if [[ $1 = "update" ]]; then
   update
 fi
 
-# if $1 == in-work - get current project 
+# if $1 == in-work - get current project
 # and issue in work
 # $2 - if is "-e", exit
 if [[ $1 = "in-work" ]]; then
   inwork $2
 fi
 
-# if $1 == to-work - set current project 
+# if $1 == to-work - set current project
 # and issue in work
 if [[ $1 = "to-work" ]]; then
   towork
 fi
 
-# if $1 == done - set current project 
+# if $1 == done - set current project
 # and issue is done
 # remove file 'current_job.txt'
 if [[ $1 = "done" ]]; then
