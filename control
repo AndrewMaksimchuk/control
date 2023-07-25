@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 projectdir=$(dirname $0)
+config="$projectdir/.config"
 
 function update {
   echo "Updating..."
@@ -39,6 +40,15 @@ function inwork {
     towork
   fi
 
+  # Update current issue
+  if [[ $1 = '--update' || $1 = '-u' ]]; then
+    local config_content=$(cat $config)
+    local current_repo=$(echo "$config_content" | head -1)
+    local current_issue=$(echo "$config_content" | tail -1)
+    echo -n "Updating current issue..."
+    towork $current_repo $current_issue
+  fi
+
   cat $job_file
   exit
 }
@@ -46,8 +56,18 @@ function inwork {
 function towork {
   # $1 - repository name
   # $2 - issue number(hash)
+  if [[ (-n $1) && (-n $2)]]; then
+    node "$projectdir/to-work.mjs" "$1" "$2"
+    echo -en "\033[1K" # clear line
+    echo -en "\033[G"  # move cursor to 1 column
+    cat "$projectdir/current_job.txt"
+    exit  
+  fi
+
   local prompt="Enter a repo name and issue number(hash) "
   read -p "$prompt" repo iss
+  echo $repo > $config
+  echo $iss >> $config
   node "$projectdir/to-work.mjs" "$repo" "$iss"
   cat "$projectdir/current_job.txt"
   exit
@@ -72,6 +92,7 @@ fi
 # if $1 == in-work - get current project
 # and issue in work
 # $2 - if is "-e", exit
+#      if is "--update(-u)", update current issue
 if [[ $1 = "in-work" ]]; then
   inwork $2
 fi
