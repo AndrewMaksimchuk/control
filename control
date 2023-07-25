@@ -56,18 +56,18 @@ function inwork {
 function towork {
   # $1 - repository name
   # $2 - issue number(hash)
-  if [[ (-n $1) && (-n $2)]]; then
+  if [[ (-n $1) && (-n $2) ]]; then
     node "$projectdir/to-work.mjs" "$1" "$2"
     echo -en "\033[1K" # clear line
     echo -en "\033[G"  # move cursor to 1 column
     cat "$projectdir/current_job.txt"
-    exit  
+    exit
   fi
 
   local prompt="Enter a repo name and issue number(hash) "
   read -p "$prompt" repo iss
-  echo $repo > $config
-  echo $iss >> $config
+  echo $repo >$config
+  echo $iss >>$config
   node "$projectdir/to-work.mjs" "$repo" "$iss"
   cat "$projectdir/current_job.txt"
   exit
@@ -76,6 +76,34 @@ function towork {
 function donework {
   rm -f "$projectdir/current_job.txt"
   echo "Job done"
+}
+
+function todo {
+  # $1 - is empty or one of the flags:
+  #      --read(-r) open file in less(default behavior)
+  #      --add(-a)  open file in vi and go to last
+  #                 line in insert mode
+  #      --edit(-e) open file in vi
+  local todo_file="$projectdir/todo.md"
+
+  if [[ $1 = "--add" || $1 = "-a" ]]; then
+    vi + +start $todo_file
+    exit
+  fi
+
+  if [[ ! -f $todo_file ]]; then
+    echo "You don't have ideas for projects"
+    echo "If you want save ideas for future, use command 'control todo -a'"
+    exit
+  fi
+
+  if [[ $1 = "--edit" || $1 = "-e" ]]; then
+    vi $todo_file
+    exit
+  fi
+
+  less $todo_file
+  exit
 }
 
 # if arguments is 0, show dashboard(fetch
@@ -108,4 +136,9 @@ fi
 # remove file 'current_job.txt'
 if [[ $1 = "done" ]]; then
   donework
+fi
+
+# if $1 == todo - work with future ideas
+if [[ $1 = "todo" ]]; then
+  todo $2
 fi

@@ -12,6 +12,7 @@ without   - show dashboard for today
 `in-work` - get current project and issue in work  
 `to-work` - set current project and issue in work  
 `done`    - set current project and issue is done  
+`todo`    - save or edit ideas for projects  
 
 
 #### Files
