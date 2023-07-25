@@ -52,7 +52,7 @@ ${repoLink}
 
 Your issue:
 ${title}
-${body}
+${body ? body : ''}
 ${issueLink}
 `.trim()
 
