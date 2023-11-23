@@ -3,6 +3,8 @@
 projectdir=$(dirname $0)
 config="$projectdir/.config"
 
+. $projectdir/history.bash
+
 function update {
   echo "Updating..."
   node "$projectdir/index.mjs"
@@ -68,6 +70,7 @@ function towork {
   read -p "$prompt" repo iss
   echo $repo >$config
   echo $iss >>$config
+  start_job $repo $iss
   node "$projectdir/to-work.mjs" "$repo" "$iss"
   cat "$projectdir/current_job.txt"
   exit
@@ -75,6 +78,8 @@ function towork {
 
 function donework {
   rm -f "$projectdir/current_job.txt"
+  end_job
+  echo >> $FILE_HISTORY
   echo "Job done"
 }
 
@@ -141,4 +146,10 @@ fi
 # if $1 == todo - work with future ideas
 if [[ $1 = "todo" ]]; then
   todo $2
+fi
+
+# if $1 == history - show available history of jobs
+# if $2 is "clean" - delete all history
+if [[ $1 = "history" ]]; then
+  history $2
 fi

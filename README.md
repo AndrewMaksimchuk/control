@@ -13,9 +13,11 @@ without   - show dashboard for today
 `to-work` - set current project and issue in work  
 `done`    - set current project and issue is done  
 `todo`    - save or edit ideas for projects  
+`history` - show available hisroty of jobs
 
 
 #### Files
 
 `dashboard.txt`   - all repositories with open issues  
 `current_job.txt` - repository and issues working on  
+`.history`        - all jobs

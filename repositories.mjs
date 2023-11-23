@@ -1,6 +1,5 @@
 export const repositories = [
   "radiomag",
-  "kids_tablet",
   "learn_words",
   "readbook",
   "note",
