@@ -1,5 +1,6 @@
 node_modules/
 *.txt
 .config
+.config.projects
 .history
 todo.md

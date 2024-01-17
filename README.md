@@ -14,6 +14,7 @@ without   - show dashboard for today
 `done`    - set current project and issue is done  
 `todo`    - save or edit ideas for projects  
 `history` - show available hisroty of jobs
+`do-work` - open editor with project of current issues
 
 
 #### Files
@@ -21,3 +22,9 @@ without   - show dashboard for today
 `dashboard.txt`   - all repositories with open issues  
 `current_job.txt` - repository and issues working on  
 `.history`        - all jobs
+
+
+#### Editor
+
+In command `do-work`, first editor is `vscode`  
+and if no find, then use `vi`  

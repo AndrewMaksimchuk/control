@@ -4,12 +4,13 @@
 
 local -a subcmds
 subcmds=(
- 'update:Show dashboard(fetch new data)' 
+ 'update:show dashboard(fetch new data)' 
  'in-work:get current project and issue in work' 
  'to-work:set current project and issue in work' 
  'done:set current project and issue is done' 
  'todo:save or edit ideas for projects' 
  'history:show available history of jobs'
+ 'do-work:open editor with project of current issues'
 )
 
 _describe 'command' subcmds

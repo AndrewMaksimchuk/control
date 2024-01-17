@@ -111,6 +111,44 @@ function todo {
   exit
 }
 
+function dowork {
+  local config_projects="$projectdir/.config.projects"
+  local current_job="$projectdir/current_job.txt"
+
+  if [[ ! -e $config_projects ]]; then
+    echo 'You need set path to all your projects'
+    read -p "Please, enter absolute path to your projects directory: " path_to_projects
+
+    if [[ ! -d $path_to_projects ]]; then
+      echo 'Bad path, please try again'
+      exit
+    fi
+
+    echo -n $path_to_projects > $config_projects
+  fi
+
+  if [[ -n $1 ]]; then
+    if [[ ! -d $1 ]]; then
+      echo 'Bad path, please try again'
+      exit
+    fi
+
+    echo -n $1 > $config_projects
+    exit
+  fi
+
+  local url=$(sed -n '2p' $current_job)
+  local path_to_projects=$(head -n1 $config_projects)
+  local current_project_dir=$(
+    find $path_to_projects  -maxdepth 3 -type f -name config \
+    | xargs grep $url \
+    | cut -f1 -d'.'
+  )
+
+# code - is a vscode editor
+  code $current_project_dir 2>/dev/null || vi $current_project_dir
+}
+
 # if arguments is 0, show dashboard(fetch
 # new data or get from file(today))
 if [ $# -eq 0 ]; then
@@ -152,4 +190,10 @@ fi
 # if $2 is "clean" - delete all history
 if [[ $1 = "history" ]]; then
   history $2
+fi
+
+# if $1 == do-work - open editor with project of current issues
+# if $2 - must be the path to directory with projects(options, for set new path)
+if [[ $1 = "do-work" ]]; then
+  dowork $2
 fi
