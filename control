@@ -156,6 +156,7 @@ function dowork {
 
 # code - is a vscode editor
   code $current_project_dir 2>/dev/null || vi $current_project_dir
+  inwork
 }
 
 # if arguments is 0, show dashboard(fetch
