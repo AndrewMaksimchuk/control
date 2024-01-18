@@ -28,3 +28,14 @@ without   - show dashboard for today
 
 In command `do-work`, first editor is `vscode`  
 and if no find, then use `vi`  
+
+
+#### Require
+
+- node.js
+
+
+#### Install
+
+Run command `sudo ./install.bash` in terminal  
+from this folder

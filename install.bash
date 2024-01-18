@@ -37,3 +37,5 @@ addcompletion
 
 execfiles=$(echo $cwd/*.bash $cwd/*.mjs)
 chmod +x $execfiles
+
+npm ci

@@ -4,31 +4,13 @@
 import { dirname, join } from "path";
 import { appendFile, unlinkSync, existsSync } from "fs";
 import { octokit } from "./gh-api.mjs"
-import { repositories } from "./repositories.mjs"
 import { owner } from "./variales.mjs";
-
+import { isRepoNotValid, isIssNotNumber } from "./validation.mjs";
 
 const [, , repo, issue_number] = process.argv
 
-
-const isRepoNotValid =
-  !repositories.includes(repo)
-if (isRepoNotValid) {
-  console.log(
-    "This repository name not exist, try again",
-  )
-  process.exit()
-}
-
-
-const isIssNotNumber = Number.isNaN(parseInt(issue_number))
-if (isIssNotNumber) {
-  console.log(
-    "Issue should be a number, try again",
-  )
-  process.exit()
-}
-
+isRepoNotValid(repo)
+isIssNotNumber(issue_number)
 
 const issueData = await octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}', {
   owner,

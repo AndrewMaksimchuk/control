@@ -77,6 +77,15 @@ function towork {
 }
 
 function donework {
+  local config_content=$(cat $config)
+  local current_repo=$(echo "$config_content" | head -1)
+  local current_issue=$(echo "$config_content" | tail -1)
+  node $projectdir/done-work.mjs $current_repo $current_issue
+
+  if [[ $? != 0 ]]; then
+    echo "can't close the issue"
+    exit
+  fi
   rm -f "$projectdir/current_job.txt"
   end_job
   echo >> $FILE_HISTORY
@@ -196,4 +205,10 @@ fi
 # if $2 - must be the path to directory with projects(options, for set new path)
 if [[ $1 = "do-work" ]]; then
   dowork $2
+fi
+
+if [[ $1 ]]; then
+  echo "[ INFO ] Command not correct!"
+  echo
+  cat $projectdir/README.md
 fi
