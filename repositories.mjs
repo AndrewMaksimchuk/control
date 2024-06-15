@@ -1,5 +1,4 @@
 export const repositories = [
-  "bookish-spoon",
   "note",
   "learn_words",
   "readbook",
