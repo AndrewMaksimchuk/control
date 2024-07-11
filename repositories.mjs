@@ -13,4 +13,5 @@ export const repositories = [
   "vodiy",
   "web_builder",
   "web-shell",
+  "links",
 ]
