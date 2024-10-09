@@ -15,6 +15,7 @@ without   - show dashboard for today
 `todo`    - save or edit ideas for projects  
 `history` - show available hisroty of jobs
 `do-work` - open editor with project of current issues
+`local`   - show git status of local projects
 
 
 #### Files

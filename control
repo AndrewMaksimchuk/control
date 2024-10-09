@@ -2,6 +2,7 @@
 
 projectdir=$(dirname $0)
 config="$projectdir/.config"
+config_projects="$projectdir/.config.projects"
 
 . $projectdir/history.bash
 
@@ -121,7 +122,6 @@ function todo {
 }
 
 function dowork {
-  local config_projects="$projectdir/.config.projects"
   local current_job="$projectdir/current_job.txt"
 
   if [[ ! -e $config_projects ]]; then
@@ -154,9 +154,36 @@ function dowork {
     | cut -f1 -d'.'
   )
 
-# code - is a vscode editor
+  # code - is a vscode editor
   code $current_project_dir 2>/dev/null || vi $current_project_dir
   inwork
+}
+
+function local_check {
+  local path_to_projects=$(head -n1 $config_projects)
+  local projects_dirs=$(ls -l $path_to_projects | grep ^d | rev | cut -f1 -d' ' | rev)
+
+  for dir in $projects_dirs; do
+    echo -e "\033[1m$dir\033[0m => $path_to_projects/$dir"
+    cd "$path_to_projects/$dir"
+
+    if [[ -d ".git" ]]; then
+      local git_status=$(git status -s)
+
+      if [[ -z $git_status  ]]; then
+        echo 'You are not doing anything here'
+      else
+        git status -s
+      fi
+    else
+      echo 'Git not initialized!'
+    fi
+
+    cd $OLDPWD
+    echo
+  done
+
+  exit
 }
 
 # if arguments is 0, show dashboard(fetch
@@ -206,6 +233,11 @@ fi
 # if $2 - must be the path to directory with projects(options, for set new path)
 if [[ $1 = "do-work" ]]; then
   dowork $2
+fi
+
+# if $1 == local - show git status of local projects
+if [[ $1 = "local" ]]; then
+  local_check
 fi
 
 if [[ $1 ]]; then

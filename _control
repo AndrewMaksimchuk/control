@@ -11,6 +11,7 @@ subcmds=(
  'todo:save or edit ideas for projects' 
  'history:show available history of jobs'
  'do-work:open editor with project of current issues'
+ 'local:show git status of local projects'
 )
 
 _describe 'command' subcmds

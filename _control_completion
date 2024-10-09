@@ -2,7 +2,7 @@
 
 
 function _control() {
-    COMPREPLY=('update' 'in-work' 'to-work' 'done' 'todo' 'history' 'do-work')
+    COMPREPLY=('update' 'in-work' 'to-work' 'done' 'todo' 'history' 'do-work' 'local')
 }
 
 
