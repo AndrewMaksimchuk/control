@@ -13,9 +13,9 @@ without   - show dashboard for today
 `to-work` - set current project and issue in work  
 `done`    - set current project and issue is done  
 `todo`    - save or edit ideas for projects  
-`history` - show available hisroty of jobs
-`do-work` - open editor with project of current issues
-`local`   - show git status of local projects
+`history` - show available hisroty of jobs  
+`do-work` - open editor with project of current issues  
+`local`   - show git status of local projects  
 
 
 #### Files
