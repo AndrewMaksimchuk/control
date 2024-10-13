@@ -15,3 +15,9 @@ export const repositories = [
   "web-shell",
   "links",
 ]
+
+export const hiddenRepositories = [
+  "note",
+  "learn_words",
+  "spending",
+]

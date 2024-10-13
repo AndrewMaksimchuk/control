@@ -3,7 +3,7 @@
 import { dirname, join } from "path";
 import { appendFile, unlinkSync, existsSync } from "fs";
 import { octokit } from "./gh-api.mjs";
-import { repositories } from "./repositories.mjs"
+import { repositories, hiddenRepositories } from "./repositories.mjs"
 import { owner, dashboard } from "./variales.mjs";
 
 const columns = process.stdout.columns
@@ -80,6 +80,14 @@ const printHeader = () => {
   toFile(header)
 }
 
+const printHiddenRepository = () => {
+  console.log(`\x1B[1mHidden repositories(not showing): \x1B[0m${hiddenRepositories.join(', ')}\n`)
+}
+
+const printDashboard = () => {
+  repositories.filter((repo) => !hiddenRepositories.includes(repo)).map((repo) => print(repo))
+}
+
 process.stdout.write("\x1Bc")
 
 if (existsSync(filePath)) {
@@ -87,4 +95,5 @@ if (existsSync(filePath)) {
 }
 
 printHeader()
-repositories.map((repo) => print(repo))
+printDashboard()
+printHiddenRepository()
