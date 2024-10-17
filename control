@@ -169,14 +169,20 @@ function local_check {
 
     if [[ -d ".git" ]]; then
       local git_status=$(git status -s)
+      local git_logs=$(git log origin/main..HEAD | git shortlog -s | cat)
 
       if [[ -z $git_status  ]]; then
-        echo 'You are not doing anything here'
+        echo -e '\033[1m[OK]\033[0m You are not doing anything here'
       else
         git status -s
       fi
+
+      if [[ ! -z $git_logs ]]; then
+        echo 'You have unpushed commits' 
+        echo $git_logs
+      fi
     else
-      echo 'Git not initialized!'
+      echo '[BAD] Git not initialized!'
     fi
 
     cd $OLDPWD
