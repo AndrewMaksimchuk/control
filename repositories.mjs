@@ -1,4 +1,6 @@
 export const repositories = [
+  "ts-to-css",
+  "mcu",
   "note",
   "learn_words",
   "readbook",
@@ -14,10 +16,11 @@ export const repositories = [
   "web_builder",
   "web-shell",
   "links",
+  "invoices",
+  "watchdog",
+  "functions.js",
+  "instalater-in-praha",
 ]
 
 export const hiddenRepositories = [
-  "note",
-  "learn_words",
-  "spending",
 ]
