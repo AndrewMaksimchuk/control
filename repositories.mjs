@@ -1,4 +1,5 @@
 export const repositories = [
+  "esbuild-plugin-cpp",
   "ts-to-css",
   "mcu",
   "note",
