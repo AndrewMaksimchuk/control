@@ -1,4 +1,5 @@
 export const repositories = [
+  "babel-plugin-transform-pipe-operator",
   "esbuild-plugin-cpp",
   "ts-to-css",
   "mcu",
