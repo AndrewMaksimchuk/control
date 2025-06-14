@@ -78,6 +78,13 @@ function towork {
 }
 
 function donework {
+  local job_file="$projectdir/current_job.txt"
+
+  if [[ ! -f $job_file ]]; then
+    echo "You don\`t have current job"
+    exit
+  fi
+
   local config_content=$(cat $config)
   local current_repo=$(echo "$config_content" | head -1)
   local current_issue=$(echo "$config_content" | tail -1)
@@ -87,10 +94,12 @@ function donework {
     echo "can't close the issue"
     exit
   fi
+
   rm -f "$projectdir/current_job.txt"
   end_job
   echo >> $FILE_HISTORY
   echo "Job done"
+  exit
 }
 
 function todo {
