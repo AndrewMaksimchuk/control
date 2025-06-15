@@ -155,7 +155,7 @@ function dowork {
     exit
   fi
 
-  local url=$(sed -n '2p' $current_job)
+  local url=$(sed -n '2p' $current_job | cut -d'/' -f4-)
   local path_to_projects=$(head -n1 $config_projects)
   local current_project_dir=$(
     find $path_to_projects  -maxdepth 3 -type f -name config \
@@ -163,6 +163,7 @@ function dowork {
     | cut -f1 -d'.'
   )
 
+  echo "[ open the editor ] in $current_project_dir"
   # code - is a vscode editor
   code $current_project_dir 2>/dev/null || vi $current_project_dir
   inwork
