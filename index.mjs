@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { dirname, join } from "path";
-import { appendFile, unlinkSync, existsSync } from "fs";
+import { appendFile, unlinkSync, existsSync, readFileSync } from "fs";
 import { octokit } from "./gh-api.mjs";
 import { repositories, hiddenRepositories } from "./repositories.mjs"
 import { owner, dashboard } from "./variales.mjs";
@@ -25,6 +25,18 @@ const getIssues = async (repo) => {
 
 const toFile = (data) => {
   appendFile(filePath, data + "\n", "utf-8", () => { })
+}
+
+const getCurrentJob = () => {
+  const filePathCurrentJob = join(pwd, 'current_job.txt')
+  if (existsSync(filePathCurrentJob)) {
+    const fileContent = String(readFileSync(filePathCurrentJob))
+    return fileContent.split('\n').reverse().find(str => str.startsWith('http'));
+  }
+}
+
+const markCurrentJob = (url, currentJobUrl) => {
+  return url === currentJobUrl ? '[ CURRENT JOB ] ' : '';
 }
 
 const print = async (repo) => {
@@ -58,12 +70,13 @@ const print = async (repo) => {
   )
 
   toFile(text)
+  const currentJobUrl = getCurrentJob()
 
   issues.forEach((issue) => {
     const title = issue
       .title
       .padEnd(50)
-    const text = `${title}${delimiter}${issue.html_url}`
+    const text = `${markCurrentJob(issue.html_url, currentJobUrl)}${title}${delimiter}${issue.html_url}`
     console.log(text)
     toFile(text)
   })
@@ -81,6 +94,7 @@ const printHeader = () => {
 }
 
 const printHiddenRepository = () => {
+  if(0 === hiddenRepositories.length) return;
   console.log(`\x1B[1mHidden repositories(not showing): \x1B[0m${hiddenRepositories.join(', ')}\n`)
 }
 
