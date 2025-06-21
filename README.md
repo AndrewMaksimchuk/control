@@ -16,13 +16,14 @@ without   - show dashboard for today
 `history` - show available hisroty of jobs  
 `do-work` - open editor with project of current issues  
 `local`   - show git status of local projects  
-
+`estimate`- show spended time on jobs
 
 #### Files
 
 `dashboard.txt`   - all repositories with open issues  
 `current_job.txt` - repository and issues working on  
 `.history`        - all jobs
+`.estimate`       - summary of spending time for jobs
 
 
 #### Editor

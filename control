@@ -214,6 +214,54 @@ function local_check {
   exit
 }
 
+function control_estimate {
+  # $1 - optional parameter empty or "-d"
+  # if present "-d" - show detail list of jobs
+
+  local file_estimate=$projectdir/.estimate
+  rm -f $file_estimate
+
+  mkdir -p /tmp/control/
+  split -l 5 "$projectdir/.history" /tmp/control/
+
+  for control_history_file in /tmp/control/*; do
+    local file_length=$(wc -l $control_history_file | cut -d' ' -f1)
+
+    if [[ $file_length -lt 5 ]]; then
+      rm $control_history_file
+      continue
+    fi
+
+    local date_end=$(sed -n '4p' $control_history_file | rev | cut -d' ' -f1 | rev)
+    local date_start=$(sed -n '3p' $control_history_file | rev | cut -d' ' -f1 | rev)
+
+    if [[ $date_end = $date_start ]]; then
+      echo $date_end '1 day' >> $file_estimate
+      continue
+    fi
+
+    local date_month_end=$(echo $date_end | cut -d'.' -f2)
+    local date_month_start=$(echo $date_start | cut -d'.' -f2)
+
+    if [[ $date_month_end = $date_month_start ]]; then
+      local date_day_end=$(echo $date_end | cut -d'.' -f1)
+      local date_day_start=$(echo $date_start| cut -d'.' -f1)
+      echo $date_end $(($date_day_end - $date_day_start)) 'days' >> $file_estimate
+      continue
+    else
+      echo $date_end 'Have months for job done, too long' >> $file_estimate
+      continue
+    fi
+  done
+
+  if [[ $1 = '-d' ]]; then
+    tac $file_estimate | less
+  fi
+
+  uniq -c $file_estimate | awk '{if ($1 == "1") {printf $1 " job  "} else {printf $1 " jobs "}; for (i=2; i<NF; i++) printf $i " "; print $NF}'
+  exit
+}
+
 # if arguments is 0, show dashboard(fetch
 # new data or get from file(today))
 if [ $# -eq 0 ]; then
@@ -266,6 +314,11 @@ fi
 # if $1 == local - show git status of local projects
 if [[ $1 = "local" ]]; then
   local_check
+fi
+
+# $2 == -d - show details, job date and how long its take
+if [[ $1 = "estimate" ]]; then
+  control_estimate $2
 fi
 
 if [[ $1 ]]; then

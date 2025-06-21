@@ -3,4 +3,5 @@ node_modules/
 .config
 .config.projects
 .history
+.estimate
 todo.md
