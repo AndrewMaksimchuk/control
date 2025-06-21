@@ -3,6 +3,7 @@
 projectdir=$(dirname $0)
 config="$projectdir/.config"
 config_projects="$projectdir/.config.projects"
+dashboard_file="$projectdir/dashboard.txt"
 
 . $projectdir/history.bash
 
@@ -13,7 +14,6 @@ function update {
 }
 
 function main {
-  dashboard_file="$projectdir/dashboard.txt"
   dashboard_stat=$(stat -c %w $dashboard_file)
   dashboard_day=$(
     echo $dashboard_stat |
@@ -77,6 +77,10 @@ function towork {
   exit
 }
 
+function control_dashboard_remove_current_job () {
+  sed -i '/^\[ CURRENT JOB \]/d' "$dashboard_file"
+}
+
 function donework {
   local job_file="$projectdir/current_job.txt"
 
@@ -97,6 +101,7 @@ function donework {
 
   rm -f "$projectdir/current_job.txt"
   end_job
+  control_dashboard_remove_current_job
   echo >> $FILE_HISTORY
   echo "Job done"
   exit
