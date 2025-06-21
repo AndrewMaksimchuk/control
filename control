@@ -56,6 +56,11 @@ function inwork {
   exit
 }
 
+function control_dashboard_mark_current_job () {
+  local job_link=$(tail -n1 "$projectdir/current_job.txt" | sed 's|/|\\/|g')
+  sed -i "/$job_link/ s/./[ CURRENT JOB ] &/" "$dashboard_file"
+}
+
 function towork {
   # $1 - repository name
   # $2 - issue number(hash)
@@ -64,6 +69,7 @@ function towork {
     echo -en "\033[1K" # clear line
     echo -en "\033[G"  # move cursor to 1 column
     cat "$projectdir/current_job.txt"
+    control_dashboard_mark_current_job
     exit
   fi
 
@@ -74,6 +80,7 @@ function towork {
   start_job $repo $iss
   node "$projectdir/to-work.mjs" "$repo" "$iss"
   cat "$projectdir/current_job.txt"
+  control_dashboard_mark_current_job
   exit
 }
 
