@@ -180,8 +180,14 @@ function dowork {
   )
 
   echo "[ OPEN EDITOR ] in $current_project_dir"
-  # code - is a vscode editor
-  code $current_project_dir 2>/dev/null || vi $current_project_dir
+  if [[ -n $(command -v $VISUAL) ]]; then
+    $VISUAL $current_project_dir
+  elif [[ -n $(command -v code) ]]; then
+    # code - is a vscode editor
+    code $current_project_dir 2>/dev/null
+  else
+    vi $current_project_dir
+  fi
   inwork
 }
 
