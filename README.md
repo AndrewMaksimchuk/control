@@ -1,41 +1,42 @@
 Control github projects  
-show open issues and track current job  
+show open issues and track current job
 
-
-Support bash, zsh complition  
-
+Support bash, zsh complition
 
 #### Commands
 
-without   - show dashboard for today  
-`update`  - show dashboard(fetch new data)  
+without - show dashboard for today  
+`update` - show dashboard(fetch new data)  
 `in-work` - get current project and issue in work  
 `to-work` - set current project and issue in work  
-`done`    - set current project and issue is done  
-`todo`    - save or edit ideas for projects  
+`done` - set current project and issue is done  
+`todo` - save or edit ideas for projects  
 `history` - show available hisroty of jobs  
 `do-work` - open editor with project of current issues  
-`local`   - show git status of local projects  
+`local` - show git status of local projects  
 `estimate`- show spended time on jobs
+
+#### Commands shor versions
+
+`in-work` -> `in`
+`to-work` -> `to`
+`do-work` -> `do`
 
 #### Files
 
-`dashboard.txt`   - all repositories with open issues  
+`dashboard.txt` - all repositories with open issues  
 `current_job.txt` - repository and issues working on  
-`.history`        - all jobs
-`.estimate`       - summary of spending time for jobs
-
+`.history` - all jobs
+`.estimate` - summary of spending time for jobs
 
 #### Editor
 
 In command `do-work`, first editor is `vscode`  
-and if no find, then use `vi`  
-
+and if no find, then use `vi`
 
 #### Require
 
 - node.js
-
 
 #### Install
 
