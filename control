@@ -88,6 +88,10 @@ function control_dashboard_remove_current_job () {
   sed -i '/^\[ CURRENT JOB \]/d' "$dashboard_file"
 }
 
+function control_dashboard_skip_current_job () {
+  sed -i 's/^\[ CURRENT JOB \]/\[ SKIP JOB \]/g' "$dashboard_file"
+}
+
 function donework {
   local job_file="$projectdir/current_job.txt"
 
@@ -262,6 +266,15 @@ function control_estimate {
   exit
 }
 
+function skip_work {
+  rm -f "$projectdir/current_job.txt"
+  skip_job
+  control_dashboard_skip_current_job
+  echo >> $FILE_HISTORY
+  echo "Job skip"
+  exit
+}
+
 # if arguments is 0, show dashboard(fetch
 # new data or get from file(today))
 if [ $# -eq 0 ]; then
@@ -319,6 +332,10 @@ fi
 # $2 == -d - show details, job date and how long its take
 if [[ $1 = "estimate" ]]; then
   control_estimate $2
+fi
+
+if [[ $1 = "skip" ]]; then
+  skip_work
 fi
 
 if [[ $1 ]]; then

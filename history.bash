@@ -15,6 +15,11 @@ function end_job
 	echo "end:     " $(date +"%d.%m.%Y") >> $FILE_HISTORY
 }
 
+function skip_job
+{
+	echo "skip:    " $(date +"%d.%m.%Y") >> $FILE_HISTORY
+}
+
 function clean
 {
 	rm -f $FILE_HISTORY

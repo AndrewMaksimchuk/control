@@ -15,6 +15,7 @@ without - show dashboard for today
 `do-work` - open editor with project of current issues  
 `local` - show git status of local projects  
 `estimate`- show spended time on jobs
+`skip` - skip current job
 
 #### Commands shor versions
 
