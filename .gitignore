@@ -5,3 +5,4 @@ node_modules/
 .history
 .estimate
 todo.md
+repositories_autocomplete_zsh.bash

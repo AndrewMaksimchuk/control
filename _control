@@ -1,19 +1,50 @@
 #compdef control
 # Add competion for shell(zsh)
 
+zstyle ':completion:*' list-grouped false
 
-local -a subcmds
-subcmds=(
- 'update:show dashboard(fetch new data)' 
- 'in-work:get current project and issue in work' 
- 'to-work:set current project and issue in work' 
- 'done:set current project and issue is done' 
- 'todo:save or edit ideas for projects' 
- 'history:show available history of jobs'
- 'do-work:open editor with project of current issues'
- 'local:show git status of local projects'
- 'estimate: show spended time on jobs'
- 'skip: skip current job'
-)
+_control ()
+{
+  local projectdir=$(dirname "$_comp_command2")
+  . $projectdir/repositories_autocomplete_zsh.bash
 
-_describe 'command' subcmds
+	local context state state_descr line
+	typeset -A opt_args
+
+	_arguments -C '1: :->command' '2: :->dowork' '3: :->issues'
+
+	case $state in
+		(command)
+			local -a subcmds
+			subcmds=(
+			 'update:show dashboard(fetch new data)' 
+			 'in:get current project and issue in work' 
+			 'in-work:get current project and issue in work' 
+			 'to:set current project and issue in work' 
+			 'to-work:set current project and issue in work' 
+			 'done:set current project and issue is done' 
+			 'todo:save or edit ideas for projects' 
+			 'history:show available history of jobs'
+			 'do:open editor with project of current issues'
+			 'do-work:open editor with project of current issues'
+			 'local:show git status of local projects'
+			 'skip:skip job'
+			)
+
+			_describe 'command' subcmds
+		;;
+
+		(dowork)
+      if [[ $words[2] = "do-work" || $words[2] = "do" ]]; then
+        _describe 'repositories' repositories_names
+      fi
+		;;
+
+		(issues)
+      if [[ $words[2] = "do-work" || $words[2] = "do" ]]; then
+        get_issues_of_repository $words[3]
+        _describe 'issues' issues_of_repositories
+      fi
+		;;
+	esac
+}

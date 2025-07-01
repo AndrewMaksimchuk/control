@@ -1,3 +1,5 @@
+# Control your projects
+
 Control github projects  
 show open issues and track current job
 
@@ -43,3 +45,10 @@ and if no find, then use `vi`
 
 Run command `sudo ./install.bash` in terminal  
 from this folder
+
+## Dev note
+
+https://unix.stackexchange.com/questions/239528/dynamic-zsh-autocomplete-for-custom-commands#240192
+man zshcomplsys \_arguments
+man zshcomplsys \_values
+man zshcomplsys \_describe
