@@ -35,13 +35,13 @@ _control ()
 		;;
 
 		(dowork)
-      if [[ $words[2] = "do-work" || $words[2] = "do" ]]; then
+      if [[ $words[2] = "to-work" || $words[2] = "to" ]]; then
         _describe 'repositories' repositories_names
       fi
 		;;
 
 		(issues)
-      if [[ $words[2] = "do-work" || $words[2] = "do" ]]; then
+      if [[ $words[2] = "to-work" || $words[2] = "to" ]]; then
         get_issues_of_repository $words[3]
         _describe 'issues' issues_of_repositories
       fi
