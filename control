@@ -4,6 +4,7 @@ projectdir=$(dirname $0)
 config="$projectdir/.config"
 config_projects="$projectdir/.config.projects"
 dashboard_file="$projectdir/dashboard.txt"
+job_file="$projectdir/current_job.txt"
 
 . $projectdir/history.bash
 
@@ -35,8 +36,6 @@ function main {
 }
 
 function inwork {
-  local job_file="$projectdir/current_job.txt"
-
   if [[ ! -f $job_file ]]; then
     echo "You don\`t have current job"
     [[ $1 = "-e" ]] && exit
@@ -93,8 +92,6 @@ function control_dashboard_skip_current_job () {
 }
 
 function donework {
-  local job_file="$projectdir/current_job.txt"
-
   if [[ ! -f $job_file ]]; then
     echo "You don\`t have current job"
     exit
@@ -147,8 +144,6 @@ function todo {
 }
 
 function dowork {
-  local current_job="$projectdir/current_job.txt"
-
   if [[ ! -e $config_projects ]]; then
     echo 'You need set path to all your projects'
     read -p "Please, enter absolute path to your projects directory: " path_to_projects
@@ -171,7 +166,7 @@ function dowork {
     exit
   fi
 
-  local url=$(sed -n '2p' $current_job | cut -d'/' -f4-)
+  local url=$(sed -n '2p' $job_file| cut -d'/' -f4-)
   local path_to_projects=$(head -n1 $config_projects)
   local current_project_dir=$(
     find $path_to_projects  -maxdepth 3 -type f -name config \
@@ -180,6 +175,7 @@ function dowork {
   )
 
   echo "[ OPEN EDITOR ] in $current_project_dir"
+  echo
   if [[ -n $(command -v $VISUAL) ]]; then
     $VISUAL $current_project_dir
   elif [[ -n $(command -v code) ]]; then
@@ -188,7 +184,9 @@ function dowork {
   else
     vi $current_project_dir
   fi
-  inwork
+
+  $SHELL -c "cd $current_project_dir; cat $job_file; echo; echo '[ GIT STATUS ]'; git status; exec \"${SHELL:-sh}\""
+  exit
 }
 
 function local_check {

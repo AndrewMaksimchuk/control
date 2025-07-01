@@ -52,3 +52,4 @@ https://unix.stackexchange.com/questions/239528/dynamic-zsh-autocomplete-for-cus
 man zshcomplsys \_arguments
 man zshcomplsys \_values
 man zshcomplsys \_describe
+https://unix.stackexchange.com/questions/140602/how-do-i-start-all-shell-sessions-in-a-directory-other-than-home
