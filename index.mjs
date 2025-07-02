@@ -76,7 +76,10 @@ const print = async (repo) => {
   addItemAutocompleteZsh(repo, issues);
 
   issues.forEach((issue) => {
-    const title = issue.title.padEnd(50);
+    const title =
+      issue.title.length > 50
+        ? issue.title.slice(0, 47).concat("...")
+        : issue.title.padEnd(50).slice(0, 50);
     const text = `${markCurrentJob(
       issue.html_url,
       currentJobUrl
