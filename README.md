@@ -24,6 +24,7 @@ without - show dashboard for today
 `in-work` -> `in`
 `to-work` -> `to`
 `do-work` -> `do`
+`update` -> `u`
 
 #### Files
 

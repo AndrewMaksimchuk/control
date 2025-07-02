@@ -286,7 +286,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # if $1 == update - fetch new data
-if [[ $1 = "update" ]]; then
+if [[ $1 = "update" || $1 = "u" ]]; then
   update
 fi
 

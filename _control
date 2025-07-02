@@ -17,6 +17,7 @@ _control ()
 		(command)
 			local -a subcmds
 			subcmds=(
+			 'u:show dashboard(fetch new data)' 
 			 'update:show dashboard(fetch new data)' 
 			 'in:get current project and issue in work' 
 			 'in-work:get current project and issue in work' 
