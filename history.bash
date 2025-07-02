@@ -33,7 +33,7 @@ function history
 	fi
 
 	if [[ -e $FILE_HISTORY ]]; then
-  		cat $FILE_HISTORY
+  		column --fillrows $FILE_HISTORY
 		exit
 	fi
 	
