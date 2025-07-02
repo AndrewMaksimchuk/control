@@ -301,7 +301,7 @@ fi
 # if $1 == to-work - set current project
 # and issue in work
 if [[ $1 = "to-work" || $1 = "to" ]]; then
-  towork
+  towork $2 $3
 fi
 
 # if $1 == done - set current project
