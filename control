@@ -64,6 +64,9 @@ function towork {
   # $1 - repository name
   # $2 - issue number(hash)
   if [[ (-n $1) && (-n $2) ]]; then
+    echo "$1" > $config
+    echo "$2" >> $config
+    start_job "$1" "$2"
     node "$projectdir/to-work.mjs" "$1" "$2"
     echo -en "\033[1K" # clear line
     echo -en "\033[G"  # move cursor to 1 column
@@ -74,8 +77,8 @@ function towork {
 
   local prompt="Enter a repo name and issue number(hash) "
   read -p "$prompt" repo iss
-  echo $repo >$config
-  echo $iss >>$config
+  echo $repo > $config
+  echo $iss >> $config
   start_job $repo $iss
   node "$projectdir/to-work.mjs" "$repo" "$iss"
   cat "$projectdir/current_job.txt"
@@ -110,7 +113,6 @@ function donework {
   rm -f "$projectdir/current_job.txt"
   end_job
   control_dashboard_remove_current_job
-  echo >> $FILE_HISTORY
   echo "Job done"
   exit
 }
@@ -274,7 +276,6 @@ function skip_work {
   rm -f "$projectdir/current_job.txt"
   skip_job
   control_dashboard_skip_current_job
-  echo >> $FILE_HISTORY
   echo "Job skip"
   exit
 }
