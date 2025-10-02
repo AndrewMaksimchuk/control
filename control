@@ -77,6 +77,11 @@ function towork {
 
   local prompt="Enter a repo name and issue number(hash) "
   read -p "$prompt" repo iss
+
+  if [[ -z "$repo" ]]; then
+    exit
+  fi
+
   echo $repo > $config
   echo $iss >> $config
   start_job $repo $iss
