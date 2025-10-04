@@ -43,18 +43,17 @@ const markCurrentJob = (url, currentJobUrl) => {
   return url === currentJobUrl ? "[ CURRENT JOB ] " : "";
 };
 
-const print = async (repo) => {
+const getIssuesOfRepository = async (repo) => {
   const { data } = await getIssues(repo);
   const issues = data.map(({ html_url, title, number }) => ({
     html_url,
     title,
     number,
   }));
+  return { repo, issues };
+}
 
-  if (issues.length === 0) {
-    return;
-  }
-
+const print = async ({repo, issues}) => {
   const textRepo = `Repository: `;
   const linkRepo = `https://github.com/${owner}/${repo}`;
   const textIssues = `Opened issues [${issues.length}]`;
@@ -109,10 +108,14 @@ const printHiddenRepository = () => {
   );
 };
 
-const printDashboard = () => {
-  return repositories
+const printDashboard = async () => {
+  const process = repositories
     .filter((repo) => !hiddenRepositories.includes(repo))
-    .map((repo) => print(repo));
+    .map(getIssuesOfRepository)
+  const data = await Promise.all(process);
+  data.filter(item => Boolean(item.issues.length))
+    .sort((a, b) => b.issues.length - a.issues.length)
+    .map(print);
 };
 
 process.stdout.write("\x1Bc");
@@ -122,7 +125,7 @@ if (existsSync(filePath)) {
 }
 
 printHeader();
-const printDashboardStatus = await printDashboard();
-await Promise.all(printDashboardStatus);
+await printDashboard();
 generateAutocompleteZsh(pwd);
 printHiddenRepository();
+
