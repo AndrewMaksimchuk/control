@@ -25,7 +25,7 @@ function main {
   local current_day
   current_day=$(date +"%d")
 
-  if [[ $dashboard_day = $current_day ]]; then
+  if [[ $dashboard_day = "$current_day" ]]; then
     cat "$dashboard_file"
     echo "This is today dashboard"
     echo "For update dashboard, run command 'control update'"
@@ -269,7 +269,7 @@ function control_estimate {
     date_end=$(sed -n '4p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
     date_start=$(sed -n '3p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
 
-    if [[ $date_end = $date_start ]]; then
+    if [[ $date_end = "$date_start" ]]; then
       echo "$date_end" '1 day' >> "$file_estimate"
       continue
     fi
@@ -278,7 +278,7 @@ function control_estimate {
     date_month_end=$(echo "$date_end" | cut -d'.' -f2)
     date_month_start=$(echo "$date_start" | cut -d'.' -f2)
 
-    if [[ $date_month_end = $date_month_start ]]; then
+    if [[ $date_month_end = "$date_month_start" ]]; then
       local date_day_end date_day_start
       date_day_end=$(echo "$date_end" | cut -d'.' -f1)
       date_day_start=$(echo "$date_start"| cut -d'.' -f1)
