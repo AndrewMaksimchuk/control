@@ -210,7 +210,7 @@ function local_check {
 
   for dir in $projects_dirs; do
     echo -e "\033[1m$dir\033[0m => $path_to_projects/$dir"
-    cd "$path_to_projects/$dir"
+    cd "$path_to_projects/$dir" || { echo "Failure to change directory $path_to_projects/$dir"; exit 1; }
 
     if [[ -d ".git" ]]; then
       local git_status
