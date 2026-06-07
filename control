@@ -113,9 +113,8 @@ function donework {
   config_content=$(cat "$config")
   current_repo=$(echo "$config_content" | head -1)
   current_issue=$(echo "$config_content" | tail -1)
-  node "$projectdir/done-work.mjs" "$current_repo" "$current_issue"
 
-  if [[ $? != 0 ]]; then
+  if ! node "$projectdir/done-work.mjs" "$current_repo" "$current_issue"; then
     echo "can't close the issue"
     exit
   fi
