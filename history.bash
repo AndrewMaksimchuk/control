@@ -5,9 +5,11 @@ FILE_HISTORY="$PROJECT_DIR/.history"
 
 function start_job
 {
-	echo "project: " "$1" >> "$FILE_HISTORY"		
-	echo "issue:   " "$2" >> "$FILE_HISTORY"
-	echo "start:   $(date +'%d.%m.%Y')" >> "$FILE_HISTORY"
+  {
+    echo "project: " "$1"
+    echo "issue:   " "$2"
+    echo "start:   $(date +'%d.%m.%Y')"
+  } >>  "$FILE_HISTORY"
 }
 
 function end_job
