@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs";
 import { join } from "node:path";
-import { fileAutocompletionZsh } from "./variales.mjs";
+import { fileAutocompletionZsh } from "./variables.mjs";
 import { repositories } from "./repositories.mjs";
 
 const itemsAutocomplition = [];

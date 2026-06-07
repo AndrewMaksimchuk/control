@@ -3,7 +3,7 @@
 // https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
 
 import { octokit } from "./gh-api.mjs";
-import { owner } from "./variales.mjs";
+import { owner } from "./variables.mjs";
 import { isRepoNotValid, isIssNotNumber } from "./validation.mjs";
 
 const [, , repo, issue_number] = process.argv

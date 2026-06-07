@@ -4,7 +4,7 @@ import { dirname, join } from "path";
 import { appendFile, unlinkSync, existsSync, readFileSync } from "fs";
 import { octokit } from "./gh-api.mjs";
 import { repositories, hiddenRepositories } from "./repositories.mjs";
-import { owner, dashboard } from "./variales.mjs";
+import { owner, dashboard } from "./variables.mjs";
 import {
   addItemAutocompleteZsh,
   generateAutocompleteZsh,
