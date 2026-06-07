@@ -2,7 +2,7 @@
 
 import { dirname, join } from "path";
 import { appendFileSync, unlinkSync, existsSync, readFileSync } from "fs";
-import { octokit, validateToken } from "./gh-api.mjs";
+import { octokit, validateToken, ratelimit } from "./gh-api.mjs";
 import { repositories, hiddenRepositories } from "./repositories.mjs";
 import { owner, dashboard } from "./variables.mjs";
 import {
@@ -123,6 +123,7 @@ const printDashboard = async () => {
 };
 
 await validateToken();
+await ratelimit();
 
 process.stdout.write("\x1Bc");
 

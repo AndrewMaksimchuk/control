@@ -20,3 +20,23 @@ export async function validateToken() {
     process.exit(1)
   }
 }
+
+export async function ratelimit() {
+  try {
+    const response = await octokit.request("GET /rate_limit") 
+    const remaining = response.headers["x-ratelimit-remaining"]
+    
+    if (remaining < 100) {
+      const reset = response.headers["x-ratelimit-reset"]
+      const resetAsNeesForHuman = (new Date(reset * 1000)).toLocaleString()
+      console.log("Near rate limit")
+      console.log("Wait until " + resetAsNeesForHuman)
+      process.exit(0)
+    }
+
+    console.log(response)
+  } catch {
+    console.error("Fail to checl rate limit")
+   process.exit(1) 
+  }
+}
