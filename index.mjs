@@ -2,7 +2,7 @@
 
 import { dirname, join } from "path";
 import { appendFileSync, unlinkSync, existsSync, readFileSync } from "fs";
-import { octokit } from "./gh-api.mjs";
+import { octokit, validateToken } from "./gh-api.mjs";
 import { repositories, hiddenRepositories } from "./repositories.mjs";
 import { owner, dashboard } from "./variables.mjs";
 import {
@@ -121,6 +121,8 @@ const printDashboard = async () => {
     .sort((a, b) => b.issues.length - a.issues.length)
     .map(print);
 };
+
+await validateToken();
 
 process.stdout.write("\x1Bc");
 

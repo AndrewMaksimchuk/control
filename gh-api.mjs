@@ -11,3 +11,12 @@ if (TOKEN === undefined) {
 }
 
 export const octokit = new Octokit({ auth: TOKEN })
+
+export async function validateToken() {
+  try {
+    await octokit.request("GET /user") 
+  } catch {
+    console.error("Token is invalid or expired")
+    process.exit(1)
+  }
+}
