@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { appendFileSync, unlinkSync, existsSync, readFileSync } from "fs";
 import { octokit, validateToken, ratelimit } from "./gh-api.mjs";
@@ -11,7 +12,7 @@ import {
 } from "./generate_autocomplete_zsh.mjs";
 
 const columns = process.stdout.columns;
-const pwd = dirname(import.meta.url).slice(7);
+const pwd = dirname(fileURLToPath(import.meta.url))
 const filePath = join(pwd, dashboard);
 
 const getIssues = async (repo) => {
