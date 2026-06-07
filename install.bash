@@ -12,9 +12,12 @@ function addpath() {
   is_set_env=$(cat "$config" | grep "CONTROL_INSTALL")
   [[ -n $is_set_env ]] && return 0
 
-  echo >> "$config"
-  echo "export CONTROL_INSTALL=\"$path\"" >> "$config"
-  echo 'export PATH="$PATH:$CONTROL_INSTALL"' >> "$config"
+  {
+    echo
+    echo "export CONTROL_INSTALL=\"$path\"" 
+    # shellcheck disable=SC2016
+    echo 'export PATH="$PATH:$CONTROL_INSTALL"'
+  } >> "$config"
 }
 
 function addcompletion() {
