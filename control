@@ -80,7 +80,7 @@ function towork {
 
   local prompt
   prompt="Enter a repo name and issue number(hash) "
-  read -p "$prompt" repo iss
+  read -r -p "$prompt" repo iss
 
   if [[ -z "$repo" ]]; then
     exit
@@ -159,7 +159,7 @@ function todo {
 function dowork {
   if [[ ! -e $config_projects ]]; then
     echo 'You need set path to all your projects'
-    read -p "Please, enter absolute path to your projects directory: " path_to_projects
+    read -r -p "Please, enter absolute path to your projects directory: " path_to_projects
 
     if [[ ! -d $path_to_projects ]]; then
       echo 'Bad path, please try again'
