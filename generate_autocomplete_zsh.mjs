@@ -70,6 +70,7 @@ function generateAutocompleteBashArray() {
 
 export function generateAutocompleteZsh(path) {
   const content =
+    "# shellcheck disable=SC2034\n\n" +
     generateAutocompleteBashArray() +
     generateAutocompleteIssuesOfRepositories();
   writeFile(
