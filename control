@@ -238,7 +238,7 @@ function local_check {
       echo -e '\033[1m[BAD]\033[0m Git not initialized!'
     fi
 
-    cd "$OLDPWD"
+    cd "$OLDPWD" || { echo "Faile to change directory $OLDPWD"; exit 1; }
     echo
   done
 
