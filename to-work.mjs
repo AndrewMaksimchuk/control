@@ -47,4 +47,8 @@ if (existsSync(filePath)) {
   unlinkSync(filePath)
 }
 
-appendFile(filePath, inWork + "\n", "utf-8", () => { })
+appendFile(filePath, inWork + "\n", "utf-8", (error) => {
+    if (error) {
+      console.error("Faile to append to file: ", error);
+    }
+})

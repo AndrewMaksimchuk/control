@@ -25,7 +25,11 @@ const getIssues = async (repo) => {
 };
 
 const toFile = (data) => {
-  appendFile(filePath, data + "\n", "utf-8", () => {});
+  appendFile(filePath, data + "\n", "utf-8", (error) => {
+    if (error) {
+      console.error("Faile to append to file: ", error);
+    }
+  });
 };
 
 const getCurrentJob = () => {

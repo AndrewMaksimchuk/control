@@ -4,5 +4,6 @@ node_modules/
 .config.projects
 .history
 .estimate
+.errors_bash
 todo.md
 repositories_autocomplete_zsh.bash
