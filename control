@@ -223,7 +223,7 @@ function local_check {
       fi
 
       local origin_main_available
-      origin_main_available=$(git branch -a | grep origin/main | wc -l)
+      origin_main_available=$(git branch -a | grep -c origin/main)
 
       if [[ $origin_main_available -gt 0 ]]; then
         local git_logs
