@@ -22,7 +22,8 @@ function main {
       cut -d' ' -f1
   )
 
-  local current_day=$(date +"%d")
+  local current_day
+  current_day=$(date +"%d")
 
   if [[ $dashboard_day = $current_day ]]; then
     cat "$dashboard_file"
@@ -44,9 +45,10 @@ function inwork {
 
   # Update current issue
   if [[ $1 = '--update' || $1 = '-u' ]]; then
-    local config_content=$(cat "$config")
-    local current_repo=$(echo "$config_content" | head -1)
-    local current_issue=$(echo "$config_content" | tail -1)
+    local config_content current_repo current_issue
+    config_content=$(cat "$config")
+    current_repo=$(echo "$config_content" | head -1)
+    current_issue=$(echo "$config_content" | tail -1)
     echo -n "Updating current issue..."
     towork "$current_repo" "$current_issue"
   fi
@@ -56,7 +58,8 @@ function inwork {
 }
 
 function control_dashboard_mark_current_job () {
-  local job_link=$(tail -n1 "$projectdir/current_job.txt" | sed 's|/|\\/|g')
+  local job_link
+  job_link=$(tail -n1 "$projectdir/current_job.txt" | sed 's|/|\\/|g')
   sed -i "/$job_link/ s/./[ CURRENT JOB ] &/" "$dashboard_file"
 }
 
@@ -75,7 +78,8 @@ function towork {
     exit
   fi
 
-  local prompt="Enter a repo name and issue number(hash) "
+  local prompt
+  prompt="Enter a repo name and issue number(hash) "
   read -p "$prompt" repo iss
 
   if [[ -z "$repo" ]]; then
@@ -105,9 +109,10 @@ function donework {
     exit
   fi
 
-  local config_content=$(cat "$config")
-  local current_repo=$(echo "$config_content" | head -1)
-  local current_issue=$(echo "$config_content" | tail -1)
+  local config_content current_repo current_issue
+  config_content=$(cat "$config")
+  current_repo=$(echo "$config_content" | head -1)
+  current_issue=$(echo "$config_content" | tail -1)
   node "$projectdir/done-work.mjs" "$current_repo" "$current_issue"
 
   if [[ $? != 0 ]]; then
@@ -128,7 +133,8 @@ function todo {
   #      --add(-a)  open file in vi and go to last
   #                 line in insert mode
   #      --edit(-e) open file in vi
-  local todo_file="$projectdir/todo.md"
+  local todo_file
+  todo_file="$projectdir/todo.md"
 
   if [[ $1 = "--add" || $1 = "-a" ]]; then
     vi + +start "$todo_file"
@@ -173,9 +179,10 @@ function dowork {
     exit
   fi
 
-  local url=$(sed -n '2p' "$job_file" | cut -d'/' -f4-)
-  local path_to_projects=$(head -n1 "$config_projects")
-  local current_project_dir=$(
+  local url path_to_projects current_project_dir
+  url=$(sed -n '2p' "$job_file" | cut -d'/' -f4-)
+  path_to_projects=$(head -n1 "$config_projects")
+  current_project_dir=$(
     find "$path_to_projects"  -maxdepth 3 -type f -name config \
     | xargs grep "$url" \
     | cut -f1 -d'.'
@@ -197,15 +204,17 @@ function dowork {
 }
 
 function local_check {
-  local path_to_projects=$(head -n1 "$config_projects")
-  local projects_dirs=$(ls -l "$path_to_projects" | grep ^d | rev | cut -f1 -d' ' | rev)
+  local path_to_projects projects_dirs
+  path_to_projects=$(head -n1 "$config_projects")
+  projects_dirs=$(ls -l "$path_to_projects" | grep ^d | rev | cut -f1 -d' ' | rev)
 
   for dir in $projects_dirs; do
     echo -e "\033[1m$dir\033[0m => $path_to_projects/$dir"
     cd "$path_to_projects/$dir"
 
     if [[ -d ".git" ]]; then
-      local git_status=$(git status -s)
+      local git_status
+      git_status=$(git status -s)
 
       if [[ -z $git_status  ]]; then
         echo -e '\033[1m[OK]\033[0m You are not doing anything here'
@@ -213,10 +222,12 @@ function local_check {
         git status -s
       fi
 
-      local origin_main_available=$(git branch -a | grep origin/main | wc -l)
+      local origin_main_available
+      origin_main_available=$(git branch -a | grep origin/main | wc -l)
 
       if [[ $origin_main_available -gt 0 ]]; then
-        local git_logs=$(git log origin/main..HEAD | git shortlog -s | cat)
+        local git_logs
+        git_logs=$(git log origin/main..HEAD | git shortlog -s | cat)
 
         if [[ ! -z $git_logs ]]; then
           echo 'You have unpushed commits' 
@@ -238,34 +249,39 @@ function control_estimate {
   # $1 - optional parameter empty or "-d"
   # if present "-d" - show detail list of jobs
 
-  local file_estimate=$projectdir/.estimate
+  local file_estimate
+  file_estimate=$projectdir/.estimate
   rm -f "$file_estimate"
 
   mkdir -p /tmp/control/
   split -l 5 "$projectdir/.history" /tmp/control/
 
   for control_history_file in /tmp/control/*; do
-    local file_length=$(wc -l "$control_history_file" | cut -d' ' -f1)
+    local file_length
+    file_length=$(wc -l "$control_history_file" | cut -d' ' -f1)
 
     if [[ $file_length -lt 5 ]]; then
       rm "$control_history_file"
       continue
     fi
 
-    local date_end=$(sed -n '4p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
-    local date_start=$(sed -n '3p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
+    local date_end date_start
+    date_end=$(sed -n '4p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
+    date_start=$(sed -n '3p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
 
     if [[ $date_end = $date_start ]]; then
       echo "$date_end" '1 day' >> "$file_estimate"
       continue
     fi
 
-    local date_month_end=$(echo "$date_end" | cut -d'.' -f2)
-    local date_month_start=$(echo "$date_start" | cut -d'.' -f2)
+    local date_month_end date_month_start
+    date_month_end=$(echo "$date_end" | cut -d'.' -f2)
+    date_month_start=$(echo "$date_start" | cut -d'.' -f2)
 
     if [[ $date_month_end = $date_month_start ]]; then
-      local date_day_end=$(echo "$date_end" | cut -d'.' -f1)
-      local date_day_start=$(echo "$date_start"| cut -d'.' -f1)
+      local date_day_end date_day_start
+      date_day_end=$(echo "$date_end" | cut -d'.' -f1)
+      date_day_start=$(echo "$date_start"| cut -d'.' -f1)
       echo "$date_end" $(("$date_day_end" - "$date_day_start")) 'days' >> "$file_estimate"
       continue
     else
