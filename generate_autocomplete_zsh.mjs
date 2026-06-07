@@ -24,7 +24,7 @@ function generateCaseInExpression(word = "", lists = [""]) {
 }
 
 function generateFunction(name = "", body = "") {
-  return `funtion ${name}()\n{\n${body}\n}\n`;
+  return `function ${name}()\n{\n${body}\n}\n`;
 }
 
 function generateAutocompleteIssuesOfRepositories() {
