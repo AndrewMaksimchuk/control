@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { dirname, join } from "path";
-import { appendFile, unlinkSync, existsSync, readFileSync } from "fs";
+import { appendFileSync, unlinkSync, existsSync, readFileSync } from "fs";
 import { octokit } from "./gh-api.mjs";
 import { repositories, hiddenRepositories } from "./repositories.mjs";
 import { owner, dashboard } from "./variables.mjs";
@@ -25,11 +25,11 @@ const getIssues = async (repo) => {
 };
 
 const toFile = (data) => {
-  appendFile(filePath, data + "\n", "utf-8", (error) => {
-    if (error) {
-      console.error("Faile to append to file: ", error);
-    }
-  });
+  try {
+    appendFileSync(filePath, data + "\n", {encoding: "utf-8"});
+  } catch (error) {
+    console.error("Faile to append to file: ", error);
+  }
 };
 
 const getCurrentJob = () => {
