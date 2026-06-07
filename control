@@ -204,7 +204,7 @@ function dowork {
 function local_check {
   local path_to_projects projects_dirs
   path_to_projects=$(head -n1 "$config_projects")
-  projects_dirs=$(ls -l "$path_to_projects" | grep ^d | rev | cut -f1 -d' ' | rev)
+  projects_dirs=$(find "$path_to_projects" -maxdepth 1 -mindepth 1 -type d -printf '%f\n')
 
   for dir in $projects_dirs; do
     echo -e "\033[1m$dir\033[0m => $path_to_projects/$dir"
