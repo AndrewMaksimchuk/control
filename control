@@ -181,8 +181,8 @@ function dowork {
   url=$(sed -n '2p' "$job_file" | cut -d'/' -f4-)
   path_to_projects=$(head -n1 "$config_projects")
   current_project_dir=$(
-    find "$path_to_projects"  -maxdepth 3 -type f -name config \
-    | xargs grep "$url" \
+    find "$path_to_projects"  -maxdepth 3 -type f -name config -print0 \
+    | xargs -0 grep -l -- "$url" \
     | cut -f1 -d'.'
   )
 
