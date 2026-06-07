@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-projectdir=$(dirname $0)
+projectdir=$(dirname "$0")
 config="$projectdir/.config"
 config_projects="$projectdir/.config.projects"
 dashboard_file="$projectdir/dashboard.txt"
 job_file="$projectdir/current_job.txt"
 
-. $projectdir/history.bash
+. "$projectdir/history.bash"
 
 function update {
   echo "Updating..."
@@ -15,9 +15,9 @@ function update {
 }
 
 function main {
-  dashboard_stat=$(stat -c %w $dashboard_file)
+  dashboard_stat=$(stat -c %w "$dashboard_file")
   dashboard_day=$(
-    echo $dashboard_stat |
+    echo "$dashboard_stat" |
       cut -d- -f3 |
       cut -d' ' -f1
   )
@@ -25,7 +25,7 @@ function main {
   local current_day=$(date +"%d")
 
   if [[ $dashboard_day = $current_day ]]; then
-    cat $dashboard_file
+    cat "$dashboard_file"
     echo "This is today dashboard"
     echo "For update dashboard, run command 'control update'"
     exit
@@ -44,14 +44,14 @@ function inwork {
 
   # Update current issue
   if [[ $1 = '--update' || $1 = '-u' ]]; then
-    local config_content=$(cat $config)
+    local config_content=$(cat "$config")
     local current_repo=$(echo "$config_content" | head -1)
     local current_issue=$(echo "$config_content" | tail -1)
     echo -n "Updating current issue..."
-    towork $current_repo $current_issue
+    towork "$current_repo" "$current_issue"
   fi
 
-  cat $job_file
+  cat "$job_file"
   exit
 }
 
@@ -64,8 +64,8 @@ function towork {
   # $1 - repository name
   # $2 - issue number(hash)
   if [[ (-n $1) && (-n $2) ]]; then
-    echo "$1" > $config
-    echo "$2" >> $config
+    echo "$1" > "$config"
+    echo "$2" >> "$config"
     start_job "$1" "$2"
     node "$projectdir/to-work.mjs" "$1" "$2"
     echo -en "\033[1K" # clear line
@@ -82,9 +82,9 @@ function towork {
     exit
   fi
 
-  echo $repo > $config
-  echo $iss >> $config
-  start_job $repo $iss
+  echo "$repo" > "$config"
+  echo "$iss" >> "$config"
+  start_job "$repo" "$iss"
   node "$projectdir/to-work.mjs" "$repo" "$iss"
   cat "$projectdir/current_job.txt"
   control_dashboard_mark_current_job
@@ -105,10 +105,10 @@ function donework {
     exit
   fi
 
-  local config_content=$(cat $config)
+  local config_content=$(cat "$config")
   local current_repo=$(echo "$config_content" | head -1)
   local current_issue=$(echo "$config_content" | tail -1)
-  node $projectdir/done-work.mjs $current_repo $current_issue
+  node "$projectdir/done-work.mjs" "$current_repo" "$current_issue"
 
   if [[ $? != 0 ]]; then
     echo "can't close the issue"
@@ -131,7 +131,7 @@ function todo {
   local todo_file="$projectdir/todo.md"
 
   if [[ $1 = "--add" || $1 = "-a" ]]; then
-    vi + +start $todo_file
+    vi + +start "$todo_file"
     exit
   fi
 
@@ -142,11 +142,11 @@ function todo {
   fi
 
   if [[ $1 = "--edit" || $1 = "-e" ]]; then
-    vi $todo_file
+    vi "$todo_file"
     exit
   fi
 
-  less $todo_file
+  less "$todo_file"
   exit
 }
 
@@ -160,7 +160,7 @@ function dowork {
       exit
     fi
 
-    echo -n $path_to_projects > $config_projects
+    echo -n "$path_to_projects" > "$config_projects"
   fi
 
   if [[ -n $1 ]]; then
@@ -169,27 +169,27 @@ function dowork {
       exit
     fi
 
-    echo -n $1 > $config_projects
+    echo -n "$1" > "$config_projects"
     exit
   fi
 
-  local url=$(sed -n '2p' $job_file| cut -d'/' -f4-)
-  local path_to_projects=$(head -n1 $config_projects)
+  local url=$(sed -n '2p' "$job_file" | cut -d'/' -f4-)
+  local path_to_projects=$(head -n1 "$config_projects")
   local current_project_dir=$(
-    find $path_to_projects  -maxdepth 3 -type f -name config \
-    | xargs grep $url \
+    find "$path_to_projects"  -maxdepth 3 -type f -name config \
+    | xargs grep "$url" \
     | cut -f1 -d'.'
   )
 
   echo "[ OPEN EDITOR ] in $current_project_dir"
   echo
-  if [[ -n $(command -v $VISUAL) ]]; then
-    $VISUAL $current_project_dir
+  if [[ -n $(command -v "$VISUAL") ]]; then
+    $VISUAL "$current_project_dir"
   elif [[ -n $(command -v code) ]]; then
     # code - is a vscode editor
-    code $current_project_dir 2>/dev/null
+    code "$current_project_dir" 2>/dev/null
   else
-    vi $current_project_dir
+    vi "$current_project_dir"
   fi
 
   $SHELL -c "cd $current_project_dir; cat $job_file; echo; echo '[ GIT STATUS ]'; git status; exec \"${SHELL:-sh}\""
@@ -197,8 +197,8 @@ function dowork {
 }
 
 function local_check {
-  local path_to_projects=$(head -n1 $config_projects)
-  local projects_dirs=$(ls -l $path_to_projects | grep ^d | rev | cut -f1 -d' ' | rev)
+  local path_to_projects=$(head -n1 "$config_projects")
+  local projects_dirs=$(ls -l "$path_to_projects" | grep ^d | rev | cut -f1 -d' ' | rev)
 
   for dir in $projects_dirs; do
     echo -e "\033[1m$dir\033[0m => $path_to_projects/$dir"
@@ -220,14 +220,14 @@ function local_check {
 
         if [[ ! -z $git_logs ]]; then
           echo 'You have unpushed commits' 
-          echo $git_logs
+          echo "$git_logs"
         fi
       fi
     else
       echo -e '\033[1m[BAD]\033[0m Git not initialized!'
     fi
 
-    cd $OLDPWD
+    cd "$OLDPWD"
     echo
   done
 
@@ -239,46 +239,46 @@ function control_estimate {
   # if present "-d" - show detail list of jobs
 
   local file_estimate=$projectdir/.estimate
-  rm -f $file_estimate
+  rm -f "$file_estimate"
 
   mkdir -p /tmp/control/
   split -l 5 "$projectdir/.history" /tmp/control/
 
   for control_history_file in /tmp/control/*; do
-    local file_length=$(wc -l $control_history_file | cut -d' ' -f1)
+    local file_length=$(wc -l "$control_history_file" | cut -d' ' -f1)
 
     if [[ $file_length -lt 5 ]]; then
-      rm $control_history_file
+      rm "$control_history_file"
       continue
     fi
 
-    local date_end=$(sed -n '4p' $control_history_file | rev | cut -d' ' -f1 | rev)
-    local date_start=$(sed -n '3p' $control_history_file | rev | cut -d' ' -f1 | rev)
+    local date_end=$(sed -n '4p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
+    local date_start=$(sed -n '3p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
 
     if [[ $date_end = $date_start ]]; then
-      echo $date_end '1 day' >> $file_estimate
+      echo "$date_end" '1 day' >> "$file_estimate"
       continue
     fi
 
-    local date_month_end=$(echo $date_end | cut -d'.' -f2)
-    local date_month_start=$(echo $date_start | cut -d'.' -f2)
+    local date_month_end=$(echo "$date_end" | cut -d'.' -f2)
+    local date_month_start=$(echo "$date_start" | cut -d'.' -f2)
 
     if [[ $date_month_end = $date_month_start ]]; then
-      local date_day_end=$(echo $date_end | cut -d'.' -f1)
-      local date_day_start=$(echo $date_start| cut -d'.' -f1)
-      echo $date_end $(($date_day_end - $date_day_start)) 'days' >> $file_estimate
+      local date_day_end=$(echo "$date_end" | cut -d'.' -f1)
+      local date_day_start=$(echo "$date_start"| cut -d'.' -f1)
+      echo "$date_end" $(("$date_day_end" - "$date_day_start")) 'days' >> "$file_estimate"
       continue
     else
-      echo $date_end 'Have months for job done, too long' >> $file_estimate
+      echo "$date_end" 'Have months for job done, too long' >> "$file_estimate"
       continue
     fi
   done
 
   if [[ $1 = '-d' ]]; then
-    tac $file_estimate | less
+    tac "$file_estimate" | less
   fi
 
-  uniq -c $file_estimate | awk '{if ($1 == "1") {printf $1 " job  "} else {printf $1 " jobs "}; for (i=2; i<NF; i++) printf $i " "; print $NF}'
+  uniq -c "$file_estimate" | awk '{if ($1 == "1") {printf $1 " job  "} else {printf $1 " jobs "}; for (i=2; i<NF; i++) printf $i " "; print $NF}'
   exit
 }
 
@@ -306,13 +306,13 @@ fi
 # $2 - if is "-e", exit
 #      if is "--update(-u)", update current issue
 if [[ $1 = "in-work" || $1 = "in" ]]; then
-  inwork $2
+  inwork "$2"
 fi
 
 # if $1 == to-work - set current project
 # and issue in work
 if [[ $1 = "to-work" || $1 = "to" ]]; then
-  towork $2 $3
+  towork "$2" "$3"
 fi
 
 # if $1 == done - set current project
@@ -324,19 +324,19 @@ fi
 
 # if $1 == todo - work with future ideas
 if [[ $1 = "todo" ]]; then
-  todo $2
+  todo "$2"
 fi
 
 # if $1 == history - show available history of jobs
 # if $2 is "clean" - delete all history
 if [[ $1 = "history" ]]; then
-  history $2
+  history "$2"
 fi
 
 # if $1 == do-work - open editor with project of current issues
 # if $2 - must be the path to directory with projects(options, for set new path)
 if [[ $1 = "do-work" || $1 = "do" ]]; then
-  dowork $2
+  dowork "$2"
 fi
 
 # if $1 == local - show git status of local projects
@@ -346,7 +346,7 @@ fi
 
 # $2 == -d - show details, job date and how long its take
 if [[ $1 = "estimate" ]]; then
-  control_estimate $2
+  control_estimate "$2"
 fi
 
 if [[ $1 = "skip" ]]; then
@@ -356,5 +356,5 @@ fi
 if [[ $1 ]]; then
   echo "[ INFO ] Command not correct!"
   echo
-  cat $projectdir/README.md
+  cat "$projectdir/README.md"
 fi
