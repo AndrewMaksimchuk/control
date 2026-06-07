@@ -4,12 +4,12 @@ link="$1"
 
 if [[ -z $1 ]]; then
     echo "Put repository URL"
-    exit
+    exit 0
 fi
 
-if [[ -z $(echo "$1" | grep -e "^https://github.com") ]]; then
+if ! grep -q '^https://github.com' <<< "$1"; then
     echo "Put valid URL"
-    exit
+    exit 0
 fi
 
 lynx \
