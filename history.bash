@@ -7,18 +7,18 @@ function start_job
 {
 	echo "project: " "$1" >> "$FILE_HISTORY"		
 	echo "issue:   " "$2" >> "$FILE_HISTORY"
-	echo "start:   " $(date +"%d.%m.%Y") >> "$FILE_HISTORY"
+	echo "start:   $(date +'%d.%m.%Y')" >> "$FILE_HISTORY"
 }
 
 function end_job
 {
-	echo "end:     " $(date +"%d.%m.%Y") >> "$FILE_HISTORY"
+	echo "end:     $(date +'%d.%m.%Y')" >> "$FILE_HISTORY"
   echo >> "$FILE_HISTORY"
 }
 
 function skip_job
 {
-	echo "skip:    " $(date +"%d.%m.%Y") >> "$FILE_HISTORY"
+	echo "skip:    $(date +'%d.%m.%Y')" >> "$FILE_HISTORY"
   echo >> "$FILE_HISTORY"
 }
 
