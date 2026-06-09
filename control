@@ -345,7 +345,7 @@ fi
 # if $1 == history - show available history of jobs
 # if $2 is "clean" - delete all history
 if [[ $1 = "history" ]]; then
-  history "$2"
+  control_history "$2"
   EXIT_PREVIOUS_COMMAND_CODE
 fi
 

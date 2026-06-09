@@ -29,7 +29,7 @@ function clean
 	rm -f "$FILE_HISTORY"
 }
 
-function history
+function control_history
 {
 	if [[ $1 = "clean" ]]; then
 		clean
