@@ -12,7 +12,6 @@ job_file="$projectdir/current_job.txt"
 function update {
   echo "Updating..."
   node "$projectdir/index.mjs"
-  EXIT_PREVIOUS_COMMAND_CODE
 }
 
 function main {
@@ -30,7 +29,7 @@ function main {
     cat "$dashboard_file"
     echo "This is today dashboard"
     echo "For update dashboard, run command 'control update'"
-    EXIT_SUCCESS
+    return 0
   fi
 
   update
@@ -41,6 +40,7 @@ function inwork {
     echo "You don\`t have current job"
     [[ $1 = "-e" ]] && EXIT_SUCCESS
     towork
+    return
   fi
 
   # Update current issue
@@ -51,10 +51,10 @@ function inwork {
     current_issue=$(echo "$config_content" | tail -1)
     echo -n "Updating current issue..."
     towork "$current_repo" "$current_issue"
+    return
   fi
 
   cat "$job_file"
-  EXIT_SUCCESS
 }
 
 function control_dashboard_mark_current_job () {
@@ -75,7 +75,7 @@ function towork {
     echo -en "\033[G"  # move cursor to 1 column
     cat "$projectdir/current_job.txt"
     control_dashboard_mark_current_job
-    EXIT_PREVIOUS_COMMAND_CODE
+    return
   fi
 
   local prompt
@@ -83,7 +83,7 @@ function towork {
   read -r -p "$prompt" repo iss
 
   if [[ -z "$repo" ]]; then
-    EXIT_SUCCESS
+    return 0
   fi
 
   echo "$repo" > "$config"
@@ -92,7 +92,6 @@ function towork {
   node "$projectdir/to-work.mjs" "$repo" "$iss"
   cat "$projectdir/current_job.txt"
   control_dashboard_mark_current_job
-  EXIT_PREVIOUS_COMMAND_CODE
 }
 
 function control_dashboard_remove_current_job () {
@@ -106,7 +105,7 @@ function control_dashboard_skip_current_job () {
 function donework {
   if [[ ! -f $job_file ]]; then
     echo "You don\`t have current job"
-    EXIT_SUCCESS
+    return 0
   fi
 
   local config_content current_repo current_issue
@@ -116,14 +115,13 @@ function donework {
 
   if ! node "$projectdir/done-work.mjs" "$current_repo" "$current_issue"; then
     echo "can't close the issue"
-    EXIT_FAILURE
+    return 1
   fi
 
   rm -f "$projectdir/current_job.txt"
   end_job
   control_dashboard_remove_current_job
   echo "Job done"
-  EXIT_SUCCESS
 }
 
 function todo {
@@ -137,22 +135,21 @@ function todo {
 
   if [[ $1 = "--add" || $1 = "-a" ]]; then
     vi + +start "$todo_file"
-    EXIT_PREVIOUS_COMMAND_CODE
+    return
   fi
 
   if [[ ! -f $todo_file ]]; then
     echo "You don't have ideas for projects"
     echo "If you want save ideas for future, use command 'control todo -a'"
-    EXIT_SUCCESS
+    return 0
   fi
 
   if [[ $1 = "--edit" || $1 = "-e" ]]; then
     vi "$todo_file"
-    EXIT_PREVIOUS_COMMAND_CODE
+    return
   fi
 
   less "$todo_file"
-  EXIT_PREVIOUS_COMMAND_CODE
 }
 
 function dowork {
@@ -162,7 +159,7 @@ function dowork {
 
     if [[ ! -d $path_to_projects ]]; then
       echo 'Bad path, please try again'
-      EXIT_SUCCESS
+      return 0
     fi
 
     echo -n "$path_to_projects" > "$config_projects"
@@ -171,11 +168,11 @@ function dowork {
   if [[ -n $1 ]]; then
     if [[ ! -d $1 ]]; then
       echo 'Bad path, please try again'
-      EXIT_SUCCESS
+      return 0
     fi
 
     echo -n "$1" > "$config_projects"
-    EXIT_SUCCESS
+    return 0
   fi
 
   local url path_to_projects current_project_dir
@@ -199,7 +196,6 @@ function dowork {
   fi
 
   $SHELL -c "cd $current_project_dir; cat $job_file; echo; echo '[ GIT STATUS ]'; git status; exec \"${SHELL:-sh}\""
-  EXIT_PREVIOUS_COMMAND_CODE
 }
 
 function local_check {
@@ -240,8 +236,6 @@ function local_check {
     cd "$OLDPWD" || { echo "Faile to change directory $OLDPWD"; EXIT_FAILURE; }
     echo
   done
-
-  EXIT_SUCCESS
 }
 
 function control_estimate {
@@ -294,7 +288,6 @@ function control_estimate {
   fi
 
   uniq -c "$file_estimate" | awk '{if ($1 == "1") {printf $1 " job  "} else {printf $1 " jobs "}; for (i=2; i<NF; i++) printf $i " "; print $NF}'
-  EXIT_PREVIOUS_COMMAND_CODE
 }
 
 function skip_work {
@@ -302,18 +295,19 @@ function skip_work {
   skip_job
   control_dashboard_skip_current_job
   echo "Job skip"
-  EXIT_SUCCESS
 }
 
 # if arguments is 0, show dashboard(fetch
 # new data or get from file(today))
 if [ $# -eq 0 ]; then
   main
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 # if $1 == update - fetch new data
 if [[ $1 = "update" || $1 = "u" ]]; then
   update
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 # if $1 == in-work - get current project
@@ -322,12 +316,14 @@ fi
 #      if is "--update(-u)", update current issue
 if [[ $1 = "in-work" || $1 = "in" ]]; then
   inwork "$2"
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 # if $1 == to-work - set current project
 # and issue in work
 if [[ $1 = "to-work" || $1 = "to" ]]; then
   towork "$2" "$3"
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 # if $1 == done - set current project
@@ -335,11 +331,13 @@ fi
 # remove file 'current_job.txt'
 if [[ $1 = "done" ]]; then
   donework
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 # if $1 == todo - work with future ideas
 if [[ $1 = "todo" ]]; then
   todo "$2"
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 # if $1 == history - show available history of jobs
@@ -353,20 +351,24 @@ fi
 # if $2 - must be the path to directory with projects(options, for set new path)
 if [[ $1 = "do-work" || $1 = "do" ]]; then
   dowork "$2"
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 # if $1 == local - show git status of local projects
 if [[ $1 = "local" ]]; then
   local_check
+  EXIT_SUCCESS
 fi
 
 # $2 == -d - show details, job date and how long its take
 if [[ $1 = "estimate" ]]; then
   control_estimate "$2"
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
 
 if [[ $1 = "skip" ]]; then
   skip_work
+  EXIT_SUCCESS
 fi
 
 if [[ $1 ]]; then
