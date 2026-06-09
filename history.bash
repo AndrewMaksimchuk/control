@@ -33,13 +33,14 @@ function history
 {
 	if [[ $1 = "clean" ]]; then
 		clean
-		exit
+		return 0
 	fi
 
 	if [[ -e $FILE_HISTORY ]]; then
   		column --fillrows -c 150 "$FILE_HISTORY"
-		exit
+      return 0
 	fi
 	
 	echo "History empty"
+  return 0
 }
