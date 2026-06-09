@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 
+projectdir=$(dirname "$0")
+. "$projectdir/stdlib.bash"
+
 link="$1"
 
 if [[ -z $1 ]]; then
     echo "Put repository URL"
-    exit 0
+    EXIT_SUCCESS
 fi
 
 if ! grep -q '^https://github.com' <<< "$1"; then
     echo "Put valid URL"
-    exit 0
+    EXIT_SUCCESS
 fi
 
 lynx \
