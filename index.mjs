@@ -16,6 +16,8 @@ const pwd = dirname(fileURLToPath(import.meta.url))
 const filePath = join(pwd, dashboard);
 
 const getIssues = async (repo) => {
+  // Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2026-03-10#list-repository-issues
+  // List issues in a repository. Only open issues will be listed.
   return await octokit.request("GET /repos/{owner}/{repo}/issues", {
     owner,
     repo,
