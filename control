@@ -63,10 +63,37 @@ function control_dashboard_mark_current_job () {
   sed -i "/$job_link/ s/./[ CURRENT JOB ] &/" "$dashboard_file"
 }
 
+function towork_validation ()
+{
+    local returned_value
+
+    is_alphanumeric_dash_underscore "$1"
+    returned_value=$?
+
+    if [[ "$returned_value" -eq 1 ]]; then
+      echo "Not valid repository name"
+      return 1
+    fi
+
+    is_numeric "$2"
+    returned_value=$?
+
+    if [[ "$returned_value" -eq 1 ]]; then
+      echo "Not valid issue number"
+      return 1
+    fi
+
+    return 0
+}
+
 function towork {
   # $1 - repository name
   # $2 - issue number(hash)
   if [[ (-n $1) && (-n $2) ]]; then
+    if ! towork_validation "$1" "$2"; then
+      return 1
+    fi
+
     echo "$1" > "$config"
     echo "$2" >> "$config"
     start_job "$1" "$2"
@@ -82,8 +109,8 @@ function towork {
   prompt="Enter a repo name and issue number(hash) "
   read -r -p "$prompt" repo iss
 
-  if [[ -z "$repo" ]]; then
-    return 0
+  if ! towork_validation "$repo" "$iss"; then
+    return 1
   fi
 
   echo "$repo" > "$config"
@@ -313,17 +340,27 @@ fi
 # if $1 == in-work - get current project
 # and issue in work
 # $2 - if is "-e", exit
-#      if is "--update(-u)", update current issue
+#      if is "--update" or "-u", update current issue
 if [[ $1 = "in-work" || $1 = "in" ]]; then
-  inwork "$2"
-  EXIT_PREVIOUS_COMMAND_CODE
+  case "$2" in
+    ""|"-e"|"--update"|"-u")
+      inwork "$2"
+      EXIT_PREVIOUS_COMMAND_CODE
+      ;;
+    *)
+      echo "Bad argument"
+      EXIT_FAILURE
+      ;;
+  esac
 fi
 
 # if $1 == to-work - set current project
 # and issue in work
 if [[ $1 = "to-work" || $1 = "to" ]]; then
-  towork "$2" "$3"
-  EXIT_PREVIOUS_COMMAND_CODE
+  if [[ ( -z "$2" && -z "$3" ) || ( -n "$2" && -n "$3") ]]; then
+    towork "$2" "$3"
+    EXIT_PREVIOUS_COMMAND_CODE
+  fi
 fi
 
 # if $1 == done - set current project
@@ -336,21 +373,37 @@ fi
 
 # if $1 == todo - work with future ideas
 if [[ $1 = "todo" ]]; then
-  todo "$2"
-  EXIT_PREVIOUS_COMMAND_CODE
+  case "$2" in
+    ""|"--read"|"-r"|"--add"|"-a"|"--edit"|"-e")
+      todo "$2"
+      EXIT_PREVIOUS_COMMAND_CODE
+    ;;
+    *)
+      echo "Bad argument"
+      EXIT_FAILURE
+    ;;
+  esac
 fi
 
 # if $1 == history - show available history of jobs
 # if $2 is "clean" - delete all history
 if [[ $1 = "history" ]]; then
-  control_history "$2"
-  EXIT_PREVIOUS_COMMAND_CODE
+  case "$2" in
+    ""|"clean")
+      control_history "$2"
+      EXIT_PREVIOUS_COMMAND_CODE
+    ;;
+    *)
+      echo "Bad argument"
+      EXIT_FAILURE
+    ;;
+  esac
 fi
 
 # if $1 == do-work - open editor with project of current issues
 # if $2 - must be the path to directory with projects(options, for set new path)
 if [[ $1 = "do-work" || $1 = "do" ]]; then
-  dowork "$2"
+  dowork "$2" # validation of $2 inside this function
   EXIT_PREVIOUS_COMMAND_CODE
 fi
 
@@ -362,8 +415,16 @@ fi
 
 # $2 == -d - show details, job date and how long its take
 if [[ $1 = "estimate" ]]; then
-  control_estimate "$2"
-  EXIT_PREVIOUS_COMMAND_CODE
+  case "$2" in
+    ""|"-d")
+      control_estimate "$2"
+      EXIT_PREVIOUS_COMMAND_CODE
+    ;;
+    *)
+      echo "Bad argument"
+      EXIT_FAILURE
+    ;;
+  esac
 fi
 
 if [[ $1 = "skip" ]]; then
