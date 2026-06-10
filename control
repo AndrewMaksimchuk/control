@@ -10,7 +10,7 @@ job_file="$projectdir/current_job.txt"
 . "$projectdir/history.bash"
 
 function update {
-  echo "Updating..."
+  log_info "Updating..."
   node "$projectdir/index.mjs"
 }
 
@@ -27,8 +27,7 @@ function main {
 
   if [[ $dashboard_day = "$current_day" ]]; then
     cat "$dashboard_file"
-    echo "This is today dashboard"
-    echo "For update dashboard, run command 'control update'"
+    message "This is today dashboard\nFor update dashboard, run command 'control update'"
     return 0
   fi
 
@@ -37,7 +36,7 @@ function main {
 
 function inwork {
   if [[ ! -f $job_file ]]; then
-    echo "You don\`t have current job"
+    message "You don\`t have current job"
     [[ $1 = "-e" ]] && EXIT_SUCCESS
     towork
     return
@@ -49,7 +48,7 @@ function inwork {
     config_content=$(cat "$config")
     current_repo=$(echo "$config_content" | head -1)
     current_issue=$(echo "$config_content" | tail -1)
-    echo -n "Updating current issue..."
+    message "Updating current issue..."
     towork "$current_repo" "$current_issue"
     return
   fi
@@ -71,7 +70,7 @@ function towork_validation ()
     returned_value=$?
 
     if [[ "$returned_value" -eq 1 ]]; then
-      echo "Not valid repository name"
+      log_warn "Not valid repository name"
       return 1
     fi
 
@@ -79,7 +78,7 @@ function towork_validation ()
     returned_value=$?
 
     if [[ "$returned_value" -eq 1 ]]; then
-      echo "Not valid issue number"
+      log_warn "Not valid issue number"
       return 1
     fi
 
@@ -131,7 +130,7 @@ function control_dashboard_skip_current_job () {
 
 function donework {
   if [[ ! -f $job_file ]]; then
-    echo "You don\`t have current job"
+    log_info "You don\`t have current job"
     return 0
   fi
 
@@ -141,14 +140,14 @@ function donework {
   current_issue=$(echo "$config_content" | tail -1)
 
   if ! node "$projectdir/done-work.mjs" "$current_repo" "$current_issue"; then
-    echo "can't close the issue"
+    log_error "Can't close the issue"
     return 1
   fi
 
   rm -f "$projectdir/current_job.txt"
   end_job
   control_dashboard_remove_current_job
-  echo "Job done"
+  message "Job done"
 }
 
 function todo {
@@ -166,8 +165,7 @@ function todo {
   fi
 
   if [[ ! -f $todo_file ]]; then
-    echo "You don't have ideas for projects"
-    echo "If you want save ideas for future, use command 'control todo -a'"
+    message "You don't have ideas for projects\nIf you want save ideas for future, use command 'control todo -a'"
     return 0
   fi
 
@@ -181,11 +179,11 @@ function todo {
 
 function dowork {
   if [[ ! -e $config_projects ]]; then
-    echo 'You need set path to all your projects'
+    log_warn 'You need set path to all your projects'
     read -r -p "Please, enter absolute path to your projects directory: " path_to_projects
 
     if [[ ! -d $path_to_projects ]]; then
-      echo 'Bad path, please try again'
+      log_warn 'Bad path, please try again'
       return 0
     fi
 
@@ -194,7 +192,7 @@ function dowork {
 
   if [[ -n $1 ]]; then
     if [[ ! -d $1 ]]; then
-      echo 'Bad path, please try again'
+      log_warn 'Bad path, please try again'
       return 0
     fi
 
@@ -211,7 +209,7 @@ function dowork {
     | cut -f1 -d'.'
   )
 
-  echo "[ OPEN EDITOR ] in $current_project_dir"
+  message "[ OPEN EDITOR ] in $current_project_dir"
   echo
   if [[ -n $(command -v "$VISUAL") ]]; then
     $VISUAL "$current_project_dir"
@@ -232,7 +230,7 @@ function local_check {
 
   for dir in $projects_dirs; do
     echo -e "\033[1m$dir\033[0m => $path_to_projects/$dir"
-    cd "$path_to_projects/$dir" || { echo "Failure to change directory $path_to_projects/$dir"; EXIT_FAILURE; }
+    cd "$path_to_projects/$dir" || { log_error "Failure to change directory $path_to_projects/$dir"; EXIT_FAILURE; }
 
     if [[ -d ".git" ]]; then
       local git_status
@@ -260,7 +258,7 @@ function local_check {
       echo -e '\033[1m[BAD]\033[0m Git not initialized!'
     fi
 
-    cd "$OLDPWD" || { echo "Faile to change directory $OLDPWD"; EXIT_FAILURE; }
+    cd "$OLDPWD" || { log_error "Faile to change directory $OLDPWD"; EXIT_FAILURE; }
     echo
   done
 }
@@ -321,7 +319,7 @@ function skip_work {
   rm -f "$projectdir/current_job.txt"
   skip_job
   control_dashboard_skip_current_job
-  echo "Job skip"
+  message "Job skip"
 }
 
 # if arguments is 0, show dashboard(fetch
@@ -348,7 +346,7 @@ if [[ $1 = "in-work" || $1 = "in" ]]; then
       EXIT_PREVIOUS_COMMAND_CODE
       ;;
     *)
-      echo "Bad argument"
+      log_warn "Bad argument"
       EXIT_FAILURE
       ;;
   esac
@@ -379,7 +377,7 @@ if [[ $1 = "todo" ]]; then
       EXIT_PREVIOUS_COMMAND_CODE
     ;;
     *)
-      echo "Bad argument"
+      log_warn "Bad argument"
       EXIT_FAILURE
     ;;
   esac
@@ -394,7 +392,7 @@ if [[ $1 = "history" ]]; then
       EXIT_PREVIOUS_COMMAND_CODE
     ;;
     *)
-      echo "Bad argument"
+      log_warn "Bad argument"
       EXIT_FAILURE
     ;;
   esac
@@ -421,7 +419,7 @@ if [[ $1 = "estimate" ]]; then
       EXIT_PREVIOUS_COMMAND_CODE
     ;;
     *)
-      echo "Bad argument"
+      log_warn "Bad argument"
       EXIT_FAILURE
     ;;
   esac
@@ -433,7 +431,6 @@ if [[ $1 = "skip" ]]; then
 fi
 
 if [[ $1 ]]; then
-  echo "[ INFO ] Command not correct!"
-  echo
+  log_info "Command not correct!\n"
   cat "$projectdir/README.md"
 fi
