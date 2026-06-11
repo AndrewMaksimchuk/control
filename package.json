@@ -2,7 +2,8 @@
   "name": "control",
   "main": "index.mjs",
   "devDependencies": {
-    "@types/node": "^20.4.2"
+    "@types/node": "^20.4.2",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@octokit/core": "^5.0.0"
