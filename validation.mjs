@@ -6,7 +6,7 @@ export const isRepoNotValid = (repo = "") => {
     console.log(
       "This repository name not exist, try again",
     )
-    process.exit()
+    process.exit(1)
   }
 }
 
@@ -16,6 +16,6 @@ export const isIssNotNumber = (issue_number = "") => {
     console.log(
       "Issue should be a number, try again",
     )
-    process.exit()
+    process.exit(1)
   }
 }

@@ -7,27 +7,27 @@ const itemsAutocomplition = [];
 const repositoriesWithIssues = [];
 const issuesOfRepositories = [];
 
-function generatePairCompletionDescription(completion = "", description = "") {
+export function generatePairCompletionDescription(completion = "", description = "") {
   return `'${completion}:${description}'`;
 }
 
-function generateArray(name = "", items = []) {
+export function generateArray(name = "", items = []) {
   return `${name}=(${items.join(" ")})`;
 }
 
-function generateCaseInExpressionItem(pattern = "", body = "") {
+export function generateCaseInExpressionItem(pattern = "", body = "") {
   return `('${pattern}') ${body} ;;`;
 }
 
-function generateCaseInExpression(word = "", lists = [""]) {
+export function generateCaseInExpression(word = "", lists = [""]) {
   return `case "${word}" in \n${lists.join("\n")} \nesac`;
 }
 
-function generateFunction(name = "", body = "") {
+export function generateFunction(name = "", body = "") {
   return `function ${name}()\n{\n${body}\n}\n`;
 }
 
-function generateAutocompleteIssuesOfRepositories() {
+export function generateAutocompleteIssuesOfRepositories() {
   const lists = issuesOfRepositories.map(({ reponame, issues }) => {
     const arrayOfIssues = issues.map(({ number, title }) => {
       return generatePairCompletionDescription(number, title);
@@ -56,14 +56,14 @@ export function addItemAutocompleteZsh(reponame = "unknown", issues = [""]) {
   });
 }
 
-function sumRepositoriesWithAndWithoutIssues() {
+export function sumRepositoriesWithAndWithoutIssues() {
   const allRepositriesiWithoutIssues = repositories
     .filter((reponame) => !repositoriesWithIssues.includes(reponame))
     .map((reponame) => generatePairCompletionDescription(reponame, 0));
   return [...itemsAutocomplition, ...allRepositriesiWithoutIssues];
 }
 
-function generateAutocompleteBashArray() {
+export function generateAutocompleteBashArray() {
   const items = sumRepositoriesWithAndWithoutIssues();
   return generateArray("repositories_names", items);
 }
