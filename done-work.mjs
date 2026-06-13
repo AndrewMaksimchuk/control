@@ -12,19 +12,25 @@ isRepoNotValid(repo)
 isIssNotNumber(issue_number)
 
 const updateIssue = async () => {
-  const { status, data } = await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
-    owner,
-    repo,
-    issue_number,
-    state: 'closed',
-    state_reason: 'completed',
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28'
-    }
-  })
+  try {
+    const { status, data } = await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
+      owner,
+      repo,
+      issue_number,
+      state: 'closed',
+      state_reason: 'completed',
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    })
 
-  if (200 !== status || 'closed' !== data.state) {
-    process.exit(1)
+    if (200 !== status || 'closed' !== data.state) {
+      console.warn("Issue not closed")
+      process.exit(1)
+    }
+  } catch (error) {
+    console.error("GITHUB api request rejected or unexpected error occur")
+    process.exit(2)
   }
 }
 
