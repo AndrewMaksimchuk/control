@@ -36,7 +36,7 @@ export async function ratelimit() {
 
     console.log(response)
   } catch {
-    console.error("Fail to checl rate limit")
+    console.error("Fail to check rate limit")
    process.exit(1) 
   }
 }
