@@ -3,6 +3,7 @@
   "main": "index.mjs",
   "devDependencies": {
     "@types/node": "^20.4.2",
+    "@vitest/coverage-v8": "^4.1.8",
     "vitest": "^4.1.8"
   },
   "dependencies": {
