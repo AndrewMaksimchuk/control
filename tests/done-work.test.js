@@ -40,6 +40,14 @@ beforeEach(() => {
   mockProcessExit = vi
     .spyOn(process, "exit")
     .mockImplementation(() => undefined);
+  
+  vi
+    .spyOn(console, "error")
+    .mockImplementation(() => true);
+
+  vi
+    .spyOn(console, "warn")
+    .mockImplementation(() => true);
 });
 
 afterEach(() => {

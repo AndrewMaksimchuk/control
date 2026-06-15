@@ -17,6 +17,10 @@ beforeEach(() => {
   mockProcessExit = vi
     .spyOn(process, "exit")
     .mockImplementation(() => undefined)
+  
+  vi
+    .spyOn(console, "log")
+    .mockImplementation(() => true)
 })
 
 afterEach(() => {
