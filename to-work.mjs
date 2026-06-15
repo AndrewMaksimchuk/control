@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 
-import { dirname, join } from "path";
-import { appendFile, unlinkSync, existsSync } from "fs";
+import { dirname, join } from "node:path";
+import { appendFile, unlinkSync, existsSync } from "node:fs";
 import { octokit } from "./gh-api.mjs"
 import { owner } from "./variables.mjs";
 import { isRepoNotValid, isIssNotNumber } from "./validation.mjs";
