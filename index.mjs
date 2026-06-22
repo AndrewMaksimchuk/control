@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-import { appendFileSync, unlinkSync, existsSync, readFileSync } from "fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { appendFileSync, unlinkSync, existsSync, readFileSync } from "node:fs";
 import { octokit, validateToken, ratelimit } from "./gh-api.mjs";
 import { repositories, hiddenRepositories } from "./repositories.mjs";
 import { owner, dashboard } from "./variables.mjs";
@@ -11,11 +11,10 @@ import {
   generateAutocompleteZsh,
 } from "./generate_autocomplete_zsh.mjs";
 
-const columns = process.stdout.columns;
 const pwd = dirname(fileURLToPath(import.meta.url))
-const filePath = join(pwd, dashboard);
+export const filePath = join(pwd, dashboard);
 
-const getIssues = async (repo) => {
+export const getIssues = async (repo) => {
   // Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2026-03-10#list-repository-issues
   // List issues in a repository. Only open issues will be listed.
   return await octokit.request("GET /repos/{owner}/{repo}/issues", {
@@ -27,7 +26,7 @@ const getIssues = async (repo) => {
   });
 };
 
-const toFile = (data) => {
+export const toFile = (data) => {
   try {
     appendFileSync(filePath, data + "\n", {encoding: "utf-8"});
   } catch (error) {
@@ -35,7 +34,7 @@ const toFile = (data) => {
   }
 };
 
-const getCurrentJob = () => {
+export const getCurrentJob = () => {
   const filePathCurrentJob = join(pwd, "current_job.txt");
   if (existsSync(filePathCurrentJob)) {
     const fileContent = String(readFileSync(filePathCurrentJob));
@@ -46,21 +45,25 @@ const getCurrentJob = () => {
   }
 };
 
-const markCurrentJob = (url, currentJobUrl) => {
+export const markCurrentJob = (url, currentJobUrl) => {
   return url === currentJobUrl ? "[ CURRENT JOB ] " : "";
 };
 
-const getIssuesOfRepository = async (repo) => {
-  const { data } = await getIssues(repo);
-  const issues = data.map(({ html_url, title, number }) => ({
-    html_url,
-    title,
-    number,
-  }));
-  return { repo, issues };
+export const getIssuesOfRepository = async (repo) => {
+  try {
+    const { data } = await getIssues(repo);
+    const issues = data.map(({ html_url, title, number }) => ({
+      html_url,
+      title,
+      number,
+    }));
+    return { repo, issues };
+  } catch {
+    return { repo, issues: [] };
+  }
 }
 
-const print = async ({repo, issues}) => {
+export const print = async ({repo, issues}) => {
   const textRepo = `Repository: `;
   const linkRepo = `https://github.com/${owner}/${repo}`;
   const textIssues = `Opened issues [${issues.length}]`;
@@ -93,20 +96,19 @@ const print = async ({repo, issues}) => {
     console.log(text);
     toFile(text);
   });
-  const delimiterRepo = "=".repeat(columns);
+  const delimiterRepo = "=".repeat(process.stdout.columns);
   console.log(delimiterRepo);
   toFile(delimiterRepo);
 };
 
-const printHeader = () => {
-  const text = "Projects overview".toUpperCase();
-  const start = Math.floor(columns / 2);
-  const header = text.padStart(start, " ");
+export const printHeader = () => {
+  const start = Math.floor(process.stdout.columns / 2);
+  const header = "PROJECTS OVERVIEW".padStart(start, " ");
   console.log(header);
   toFile(header);
 };
 
-const printHiddenRepository = () => {
+export const printHiddenRepository = () => {
   if (0 === hiddenRepositories.length) return;
   console.log(
     `\x1B[1mHidden repositories(not showing): \x1B[0m${hiddenRepositories.join(
@@ -115,7 +117,7 @@ const printHiddenRepository = () => {
   );
 };
 
-const printDashboard = async () => {
+export const printDashboard = async () => {
   const process = repositories
     .filter((repo) => !hiddenRepositories.includes(repo))
     .map(getIssuesOfRepository)
@@ -125,17 +127,20 @@ const printDashboard = async () => {
     .map(print);
 };
 
-await validateToken();
-await ratelimit();
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
-process.stdout.write("\x1Bc");
+if (isMain) {
+  await validateToken();
+  await ratelimit();
 
-if (existsSync(filePath)) {
-  unlinkSync(filePath);
+  process.stdout.write("\x1Bc");
+
+  if (existsSync(filePath)) {
+    unlinkSync(filePath);
+  }
+
+  printHeader();
+  await printDashboard();
+  generateAutocompleteZsh(pwd);
+  printHiddenRepository();
 }
-
-printHeader();
-await printDashboard();
-generateAutocompleteZsh(pwd);
-printHiddenRepository();
-
