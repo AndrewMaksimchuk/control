@@ -160,7 +160,7 @@ function todo {
   todo_file="$projectdir/todo.md"
 
   if [[ $1 = "--add" || $1 = "-a" ]]; then
-    vi + +start "$todo_file"
+    vim + +start "$todo_file"
     return
   fi
 
@@ -170,7 +170,7 @@ function todo {
   fi
 
   if [[ $1 = "--edit" || $1 = "-e" ]]; then
-    vi "$todo_file"
+    vim "$todo_file"
     return
   fi
 
@@ -217,7 +217,7 @@ function dowork {
     # code - is a vscode editor
     code "$current_project_dir" 2>/dev/null
   else
-    vi "$current_project_dir"
+    vim "$current_project_dir"
   fi
 
   $SHELL -c "cd $current_project_dir; cat $job_file; echo; echo '[ GIT STATUS ]'; git status; exec \"${SHELL:-sh}\""
