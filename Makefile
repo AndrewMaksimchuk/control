@@ -6,4 +6,7 @@ check:
 tests-js:
 	npx vitest run --coverage
 
-tests: tests-js
+tests-bash:
+	./tests/bats/bin/bats ./tests/*.bats | tee .tests_bash
+
+tests: tests-js tests-bash

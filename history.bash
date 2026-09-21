@@ -15,13 +15,13 @@ function start_job
 function end_job
 {
 	echo "end:     $(date +'%d.%m.%Y')" >> "$FILE_HISTORY"
-  echo >> "$FILE_HISTORY"
+	echo >> "$FILE_HISTORY"
 }
 
 function skip_job
 {
 	echo "skip:    $(date +'%d.%m.%Y')" >> "$FILE_HISTORY"
-  echo >> "$FILE_HISTORY"
+	echo >> "$FILE_HISTORY"
 }
 
 function clean
@@ -38,9 +38,9 @@ function control_history
 
 	if [[ -e $FILE_HISTORY ]]; then
   		column --fillrows -c 150 "$FILE_HISTORY"
-      return 0
+		return 0
 	fi
 	
 	echo "History empty"
-  return 0
+	return 0
 }

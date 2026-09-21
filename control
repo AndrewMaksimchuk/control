@@ -1,326 +1,28 @@
 #!/usr/bin/env bash
 
+PS4='+ ${BASH_SOURCE}:${LINENO}:${FUNCNAME[0]} '
+set -e
+
 projectdir=$(dirname "$0")
-config="$projectdir/.config"
+CONFIG="$projectdir/.config"
 config_projects="$projectdir/.config.projects"
 dashboard_file="$projectdir/dashboard.txt"
-job_file="$projectdir/current_job.txt"
+JOB_FILE="$projectdir/current_job.txt"
 
 . "$projectdir/stdlib.bash"
 . "$projectdir/history.bash"
+. "$projectdir/update.bash"
+. "$projectdir/main.bash"
+. "$projectdir/in_work.bash"
+. "$projectdir/to_work.bash"
+. "$projectdir/done_work.bash"
+. "$projectdir/todo.bash"
+. "$projectdir/do_work.bash"
+. "$projectdir/local_check.bash"
+. "$projectdir/control_estimate.bash"
+. "$projectdir/skip_work.bash"
+. "$projectdir/current_job.bash"
 
-function update {
-  log_info "Updating..."
-  node "$projectdir/index.mjs"
-}
-
-function main {
-  dashboard_stat=$(stat -c %w "$dashboard_file")
-  dashboard_day=$(
-    echo "$dashboard_stat" |
-      cut -d- -f3 |
-      cut -d' ' -f1
-  )
-
-  local current_day
-  current_day=$(date +"%d")
-
-  if [[ $dashboard_day = "$current_day" ]]; then
-    cat "$dashboard_file"
-    message "This is today dashboard\nFor update dashboard, run command 'control update'"
-    return 0
-  fi
-
-  update
-}
-
-function inwork {
-  if [[ ! -f $job_file ]]; then
-    message "You don\`t have current job"
-    [[ $1 = "-e" ]] && EXIT_SUCCESS
-    towork
-    return
-  fi
-
-  # Update current issue
-  if [[ $1 = '--update' || $1 = '-u' ]]; then
-    local config_content current_repo current_issue
-    config_content=$(cat "$config")
-    current_repo=$(echo "$config_content" | head -1)
-    current_issue=$(echo "$config_content" | tail -1)
-    message "Updating current issue..."
-    towork "$current_repo" "$current_issue"
-    return
-  fi
-
-  cat "$job_file"
-}
-
-function control_dashboard_mark_current_job () {
-  local job_link
-  job_link=$(tail -n1 "$projectdir/current_job.txt" | sed 's|/|\\/|g')
-  sed -i "/$job_link/ s/./[ CURRENT JOB ] &/" "$dashboard_file"
-}
-
-function towork_validation ()
-{
-    local returned_value
-
-    is_alphanumeric_dash_underscore "$1"
-    returned_value=$?
-
-    if [[ "$returned_value" -eq 1 ]]; then
-      log_warn "Not valid repository name"
-      return 1
-    fi
-
-    is_numeric "$2"
-    returned_value=$?
-
-    if [[ "$returned_value" -eq 1 ]]; then
-      log_warn "Not valid issue number"
-      return 1
-    fi
-
-    return 0
-}
-
-function towork {
-  # $1 - repository name
-  # $2 - issue number(hash)
-  if [[ (-n $1) && (-n $2) ]]; then
-    if ! towork_validation "$1" "$2"; then
-      return 1
-    fi
-
-    echo "$1" > "$config"
-    echo "$2" >> "$config"
-    start_job "$1" "$2"
-    node "$projectdir/to-work.mjs" "$1" "$2"
-    echo -en "\033[1K" # clear line
-    echo -en "\033[G"  # move cursor to 1 column
-    cat "$projectdir/current_job.txt"
-    control_dashboard_mark_current_job
-    return
-  fi
-
-  local prompt
-  prompt="Enter a repo name and issue number(hash) "
-  read -r -p "$prompt" repo iss
-
-  if ! towork_validation "$repo" "$iss"; then
-    return 1
-  fi
-
-  echo "$repo" > "$config"
-  echo "$iss" >> "$config"
-  start_job "$repo" "$iss"
-  node "$projectdir/to-work.mjs" "$repo" "$iss"
-  cat "$projectdir/current_job.txt"
-  control_dashboard_mark_current_job
-}
-
-function control_dashboard_remove_current_job () {
-  sed -i '/^\[ CURRENT JOB \]/d' "$dashboard_file"
-}
-
-function control_dashboard_skip_current_job () {
-  sed -i 's/^\[ CURRENT JOB \]/\[ SKIP JOB \]/g' "$dashboard_file"
-}
-
-function donework {
-  if [[ ! -f $job_file ]]; then
-    log_info "You don\`t have current job"
-    return 0
-  fi
-
-  local config_content current_repo current_issue
-  config_content=$(cat "$config")
-  current_repo=$(echo "$config_content" | head -1)
-  current_issue=$(echo "$config_content" | tail -1)
-
-  if ! node "$projectdir/done-work.mjs" "$current_repo" "$current_issue"; then
-    log_error "Can't close the issue"
-    return 1
-  fi
-
-  rm -f "$projectdir/current_job.txt"
-  end_job
-  control_dashboard_remove_current_job
-  message "Job done"
-}
-
-function todo {
-  # $1 - is empty or one of the flags:
-  #      --read(-r) open file in less(default behavior)
-  #      --add(-a)  open file in vi and go to last
-  #                 line in insert mode
-  #      --edit(-e) open file in vi
-  local todo_file
-  todo_file="$projectdir/todo.md"
-
-  if [[ $1 = "--add" || $1 = "-a" ]]; then
-    vim + +start "$todo_file"
-    return
-  fi
-
-  if [[ ! -f $todo_file ]]; then
-    message "You don't have ideas for projects\nIf you want save ideas for future, use command 'control todo -a'"
-    return 0
-  fi
-
-  if [[ $1 = "--edit" || $1 = "-e" ]]; then
-    vim "$todo_file"
-    return
-  fi
-
-  less "$todo_file"
-}
-
-function dowork {
-  if [[ ! -e $config_projects ]]; then
-    log_warn 'You need set path to all your projects'
-    read -r -p "Please, enter absolute path to your projects directory: " path_to_projects
-
-    if [[ ! -d $path_to_projects ]]; then
-      log_warn 'Bad path, please try again'
-      return 0
-    fi
-
-    echo -n "$path_to_projects" > "$config_projects"
-  fi
-
-  if [[ -n $1 ]]; then
-    if [[ ! -d $1 ]]; then
-      log_warn 'Bad path, please try again'
-      return 0
-    fi
-
-    echo -n "$1" > "$config_projects"
-    return 0
-  fi
-
-  local url path_to_projects current_project_dir
-  url=$(sed -n '2p' "$job_file" | cut -d'/' -f4-)
-  path_to_projects=$(head -n1 "$config_projects")
-  current_project_dir=$(
-    find "$path_to_projects"  -maxdepth 3 -type f -name config -print0 \
-    | xargs -0 grep -l -- "$url" \
-    | cut -f1 -d'.'
-  )
-
-  message "[ OPEN EDITOR ] in $current_project_dir"
-  echo
-  if [[ -n $(command -v "$VISUAL") ]]; then
-    $VISUAL "$current_project_dir"
-  elif [[ -n $(command -v code) ]]; then
-    # code - is a vscode editor
-    code "$current_project_dir" 2>/dev/null
-  else
-    vim "$current_project_dir"
-  fi
-
-  $SHELL -c "cd $current_project_dir; cat $job_file; echo; echo '[ GIT STATUS ]'; git status; exec \"${SHELL:-sh}\""
-}
-
-function local_check {
-  local path_to_projects projects_dirs
-  path_to_projects=$(head -n1 "$config_projects")
-  projects_dirs=$(find "$path_to_projects" -maxdepth 1 -mindepth 1 -type d -printf '%f\n')
-
-  for dir in $projects_dirs; do
-    echo -e "\033[1m$dir\033[0m => $path_to_projects/$dir"
-    cd "$path_to_projects/$dir" || { log_error "Failure to change directory $path_to_projects/$dir"; EXIT_FAILURE; }
-
-    if [[ -d ".git" ]]; then
-      local git_status
-      git_status=$(git status -s)
-
-      if [[ -z $git_status  ]]; then
-        echo -e '\033[1m[OK]\033[0m You are not doing anything here'
-      else
-        git status -s
-      fi
-
-      local origin_main_available
-      origin_main_available=$(git branch -a | grep -c origin/main)
-
-      if [[ $origin_main_available -gt 0 ]]; then
-        local git_logs
-        git_logs=$(git log origin/main..HEAD | git shortlog -s | cat)
-
-        if [[ ! -z $git_logs ]]; then
-          echo 'You have unpushed commits' 
-          echo "$git_logs"
-        fi
-      fi
-    else
-      echo -e '\033[1m[BAD]\033[0m Git not initialized!'
-    fi
-
-    cd "$OLDPWD" || { log_error "Faile to change directory $OLDPWD"; EXIT_FAILURE; }
-    echo
-  done
-}
-
-function control_estimate {
-  # $1 - optional parameter empty or "-d"
-  # if present "-d" - show detail list of jobs
-
-  local file_estimate
-  file_estimate=$projectdir/.estimate
-  rm -f "$file_estimate"
-
-  mkdir -p /tmp/control/
-  split -l 5 "$projectdir/.history" /tmp/control/
-
-  for control_history_file in /tmp/control/*; do
-    local file_length
-    file_length=$(wc -l "$control_history_file" | cut -d' ' -f1)
-
-    if [[ $file_length -lt 5 ]]; then
-      rm "$control_history_file"
-      continue
-    fi
-
-    local date_end date_start
-    date_end=$(sed -n '4p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
-    date_start=$(sed -n '3p' "$control_history_file" | rev | cut -d' ' -f1 | rev)
-
-    if [[ $date_end = "$date_start" ]]; then
-      echo "$date_end" '1 day' >> "$file_estimate"
-      continue
-    fi
-
-    local date_month_end date_month_start
-    date_month_end=$(echo "$date_end" | cut -d'.' -f2)
-    date_month_start=$(echo "$date_start" | cut -d'.' -f2)
-
-    if [[ $date_month_end = "$date_month_start" ]]; then
-      local date_day_end date_day_start
-      date_day_end=$(echo "$date_end" | cut -d'.' -f1)
-      date_day_start=$(echo "$date_start"| cut -d'.' -f1)
-      echo "$date_end" $(("$date_day_end" - "$date_day_start")) 'days' >> "$file_estimate"
-      continue
-    else
-      echo "$date_end" 'Have months for job done, too long' >> "$file_estimate"
-      continue
-    fi
-  done
-
-  if [[ $1 = '-d' ]]; then
-    tac "$file_estimate" | less
-  fi
-
-  uniq -c "$file_estimate" | awk '{if ($1 == "1") {printf $1 " job  "} else {printf $1 " jobs "}; for (i=2; i<NF; i++) printf $i " "; print $NF}'
-}
-
-function skip_work {
-  rm -f "$projectdir/current_job.txt"
-  skip_job
-  control_dashboard_skip_current_job
-  message "Job skip"
-}
 
 # if arguments is 0, show dashboard(fetch
 # new data or get from file(today))
@@ -329,11 +31,13 @@ if [ $# -eq 0 ]; then
   EXIT_PREVIOUS_COMMAND_CODE
 fi
 
+
 # if $1 == update - fetch new data
 if [[ $1 = "update" || $1 = "u" ]]; then
   update
   EXIT_PREVIOUS_COMMAND_CODE
 fi
+
 
 # if $1 == in-work - get current project
 # and issue in work
@@ -352,6 +56,7 @@ if [[ $1 = "in-work" || $1 = "in" ]]; then
   esac
 fi
 
+
 # if $1 == to-work - set current project
 # and issue in work
 if [[ $1 = "to-work" || $1 = "to" ]]; then
@@ -361,6 +66,7 @@ if [[ $1 = "to-work" || $1 = "to" ]]; then
   fi
 fi
 
+
 # if $1 == done - set current project
 # and issue is done
 # remove file 'current_job.txt'
@@ -368,6 +74,7 @@ if [[ $1 = "done" ]]; then
   donework
   EXIT_PREVIOUS_COMMAND_CODE
 fi
+
 
 # if $1 == todo - work with future ideas
 if [[ $1 = "todo" ]]; then
@@ -382,6 +89,7 @@ if [[ $1 = "todo" ]]; then
     ;;
   esac
 fi
+
 
 # if $1 == history - show available history of jobs
 # if $2 is "clean" - delete all history
@@ -398,6 +106,7 @@ if [[ $1 = "history" ]]; then
   esac
 fi
 
+
 # if $1 == do-work - open editor with project of current issues
 # if $2 - must be the path to directory with projects(options, for set new path)
 if [[ $1 = "do-work" || $1 = "do" ]]; then
@@ -405,11 +114,13 @@ if [[ $1 = "do-work" || $1 = "do" ]]; then
   EXIT_PREVIOUS_COMMAND_CODE
 fi
 
+
 # if $1 == local - show git status of local projects
 if [[ $1 = "local" ]]; then
   local_check
-  EXIT_SUCCESS
+  EXIT_PREVIOUS_COMMAND_CODE
 fi
+
 
 # $2 == -d - show details, job date and how long its take
 if [[ $1 = "estimate" ]]; then
@@ -425,12 +136,16 @@ if [[ $1 = "estimate" ]]; then
   esac
 fi
 
+
 if [[ $1 = "skip" ]]; then
   skip_work
   EXIT_SUCCESS
 fi
 
+
 if [[ $1 ]]; then
   log_info "Command not correct!\n"
   cat "$projectdir/README.md"
 fi
+
+set +e

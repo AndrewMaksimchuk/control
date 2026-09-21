@@ -5,7 +5,7 @@ show open issues and track current job
 
 Support bash, zsh complition
 
-#### Commands
+## Commands
 
 without - show dashboard for today  
 `update` - show dashboard(fetch new data)  
@@ -19,38 +19,44 @@ without - show dashboard for today
 `estimate`- show spended time on jobs
 `skip` - skip current job
 
-#### Commands shor versions
+## Commands shor versions
 
 `in-work` -> `in`
 `to-work` -> `to`
 `do-work` -> `do`
 `update` -> `u`
 
-#### Files
+## Files
 
 `dashboard.txt` - all repositories with open issues  
 `current_job.txt` - repository and issues working on  
 `.history` - all jobs
 `.estimate` - summary of spending time for jobs
 
-#### Editor
+## Editor
 
 In command `do-work`, first editor is `vscode`  
 and if no find, then use `vi`
 
-#### Require
+## Require
 
 - node.js
 
-#### Install
+## Install
 
 Run command `sudo ./install.bash` in terminal  
 from this folder
 
 ## Dev note
 
-https://unix.stackexchange.com/questions/239528/dynamic-zsh-autocomplete-for-custom-commands#240192
+<https://unix.stackexchange.com/questions/239528/dynamic-zsh-autocomplete-for-custom-commands#240192>
 man zshcomplsys \_arguments
 man zshcomplsys \_values
 man zshcomplsys \_describe
-https://unix.stackexchange.com/questions/140602/how-do-i-start-all-shell-sessions-in-a-directory-other-than-home
+<https://unix.stackexchange.com/questions/140602/how-do-i-start-all-shell-sessions-in-a-directory-other-than-home>
+<https://bats-core.readthedocs.io/en/stable>
+
+### Testing
+
+Read [Makefile](./Makefile)
+Read [talk with ai](./tests.md)

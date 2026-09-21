@@ -6,5 +6,6 @@ coverage/
 .history
 .estimate
 .errors_bash
+.tests_bash
 todo.md
 repositories_autocomplete_zsh.bash
