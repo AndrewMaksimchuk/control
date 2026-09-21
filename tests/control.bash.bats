@@ -436,6 +436,82 @@ EOF
 }
 
 
+@test "control - do-work always uses the default dev prompt in zsh" {
+    cp ./do_work.bash "$TEST_DIRECTORY/do_work.bash"
+
+    mkdir -p "$TEST_DIRECTORY/project"
+    printf '%s\n' "https://github.com/example/project" > "$TEST_DIRECTORY/project/config"
+    printf '%s\n' "You work on repository \"project\"" > "$TEST_DIRECTORY/current_job.txt"
+    printf '%s\n' "https://github.com/example/project" >> "$TEST_DIRECTORY/current_job.txt"
+    printf '%s\n' "$TEST_DIRECTORY/project" > "$TEST_DIRECTORY/.config"
+    git init -q "$TEST_DIRECTORY/project"
+
+    run bash -c '
+        message() { :; }
+        log_warn() { :; }
+
+        cd "$TEST_DIRECTORY"
+        source ./do_work.bash
+        SHELL=/bin/zsh
+        export SHELL
+        JOB_FILE="$TEST_DIRECTORY/current_job.txt"
+        export JOB_FILE
+        config_projects="$TEST_DIRECTORY/.config"
+        export config_projects
+
+        zsh() {
+            cat "$ZDOTDIR/.zshrc"
+            return 0
+        }
+        export -f zsh
+
+        run_dev_shell "$TEST_DIRECTORY/project"
+    '
+
+    assert_success
+    assert_output --partial "PROMPT='CONTROL DEV SHELL -> '"
+    assert_output --partial "precmd()"
+}
+
+
+@test "control - do-work falls back to bash in fish" {
+    cp ./do_work.bash "$TEST_DIRECTORY/do_work.bash"
+
+    run bash -c '
+        message() { :; }
+        log_warn() { :; }
+
+        source ./do_work.bash
+        SHELL=/usr/bin/fish
+        export SHELL
+        JOB_FILE="$TEST_DIRECTORY/current_job.txt"
+        export JOB_FILE
+        bash() {
+            printf "bash prompt:%s\\n" "$PS1"
+            return 0
+        }
+
+        run_dev_shell "$TEST_DIRECTORY"
+    '
+
+    assert_success
+    assert_output --partial "bash prompt:CONTROL DEV SHELL -> "
+}
+
+
+@test "control - do-work uses the dev prompt in bash" {
+    run bash -c '
+        tmp_dir=$(mktemp -d)
+        printf "%s\n" "PS1='\''CONTROL DEV SHELL -> '\''" > "$tmp_dir/.bashrc"
+        HOME="$tmp_dir" bash -ic "printf '%s\\n' \"\$PS1\""
+        rm -rf "$tmp_dir"
+    '
+
+    assert_success
+    assert_output --partial "CONTROL DEV SHELL -> "
+}
+
+
 @test "control - command do-work" {
     skip
     run bash -c '

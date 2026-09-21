@@ -1,3 +1,78 @@
+run_dev_shell() {
+	local current_project_dir="$1"
+	local shell_name="${SHELL:-sh}"
+	local temp_dir
+
+	shell_name="${shell_name##*/}"
+
+	case "$shell_name" in
+		fish)
+			(
+				cd "$current_project_dir" || exit 1
+				cat "$JOB_FILE"
+				echo
+				echo '[ GIT STATUS ]'
+				git status
+				PS1='CONTROL DEV SHELL -> '
+				export PS1
+				bash -i
+			)
+			;;
+		zsh)
+			temp_dir=$(mktemp -d)
+			cat > "$temp_dir/.zshrc" <<'EOF'
+PROMPT='CONTROL DEV SHELL -> '
+RPROMPT=''
+precmd() {
+  PROMPT='CONTROL DEV SHELL -> '
+  RPROMPT=''
+}
+EOF
+
+			(
+				cd "$current_project_dir" || exit 1
+				cat "$JOB_FILE"
+				echo
+				echo '[ GIT STATUS ]'
+				git status
+				ZDOTDIR="$temp_dir" zsh -i
+			)
+
+			rm -rf "$temp_dir"
+			;;
+		bash)
+			temp_dir=$(mktemp -d)
+			cat > "$temp_dir/.bashrc" <<'EOF'
+PS1='CONTROL DEV SHELL -> '
+EOF
+
+			(
+				cd "$current_project_dir" || exit 1
+				cat "$JOB_FILE"
+				echo
+				echo '[ GIT STATUS ]'
+				git status
+				HOME="$temp_dir" bash -i
+			)
+
+			rm -rf "$temp_dir"
+			;;
+		*)
+			(
+				cd "$current_project_dir" || exit 1
+				cat "$JOB_FILE"
+				echo
+				echo '[ GIT STATUS ]'
+				git status
+				PS1='CONTROL DEV SHELL -> '
+				export PS1
+				"${SHELL:-sh}" -i
+			)
+			;;
+	esac
+}
+
+
 function dowork {
 	if [[ ! -e $config_projects ]]; then
 		log_warn 'You need set path to all your projects'
@@ -42,18 +117,5 @@ function dowork {
 		vim "$current_project_dir"
 	fi
 
-
-
-	$SHELL -c "
-		cd \"$current_project_dir\" || {
-			printf 'Failed to cd to: %s\n' \"$current_project_dir\" >&2
-			exit 1
-		}
-
-		cat \"$JOB_FILE\"
-		echo 
-		echo '[ GIT STATUS ]'
-		git status
-		exec \"${SHELL:-sh}\"
-	"
+	run_dev_shell "$current_project_dir"
 }
