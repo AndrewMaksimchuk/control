@@ -16,21 +16,21 @@ without - show dashboard for today
 `history` - show available hisroty of jobs  
 `do-work` - open editor with project of current issues  
 `local` - show git status of local projects  
-`estimate`- show spended time on jobs
-`skip` - skip current job
+`estimate`- show spended time on jobs  
+`skip` - skip current job  
 
 ## Commands shor versions
 
-`in-work` -> `in`
-`to-work` -> `to`
-`do-work` -> `do`
-`update` -> `u`
+`in-work` -> `in`  
+`to-work` -> `to`  
+`do-work` -> `do`  
+`update` -> `u`  
 
 ## Files
 
 `dashboard.txt` - all repositories with open issues  
 `current_job.txt` - repository and issues working on  
-`.history` - all jobs
+`.history` - all jobs  
 `.estimate` - summary of spending time for jobs
 
 ## Editor
@@ -49,14 +49,14 @@ from this folder
 
 ## Dev note
 
-<https://unix.stackexchange.com/questions/239528/dynamic-zsh-autocomplete-for-custom-commands#240192>
-man zshcomplsys \_arguments
-man zshcomplsys \_values
-man zshcomplsys \_describe
-<https://unix.stackexchange.com/questions/140602/how-do-i-start-all-shell-sessions-in-a-directory-other-than-home>
-<https://bats-core.readthedocs.io/en/stable>
+<https://unix.stackexchange.com/questions/239528/dynamic-zsh-autocomplete-for-custom-commands#240192>  
+man zshcomplsys \_arguments  
+man zshcomplsys \_values  
+man zshcomplsys \_describe  
+<https://unix.stackexchange.com/questions/140602/how-do-i-start-all-shell-sessions-in-a-directory-other-than-home>  
+<https://bats-core.readthedocs.io/en/stable>  
 
 ### Testing
 
-Read [Makefile](./Makefile)
-Read [talk with ai](./tests.md)
+Read [Makefile](./Makefile)  
+Read [talk with ai](./tests.md)  
