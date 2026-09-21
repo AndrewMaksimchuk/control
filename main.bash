@@ -7,11 +7,8 @@ function main {
 	fi
 
 	dashboard_stat=$(stat -c %w "$dashboard_file")
-	dashboard_day=$(
-		echo "$dashboard_stat" |
-		cut -d- -f3 |
-		cut -d' ' -f1
-	)
+	dashboard_day=${dashboard_stat#*-*-}
+	dashboard_day=${dashboard_day%% *}
 
 	local current_day
 	current_day=$(date +"%d")

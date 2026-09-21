@@ -28,13 +28,15 @@ function control_estimate {
     fi
 
     local date_month_end date_month_start
-    date_month_end=$(echo "$date_end" | cut -d'.' -f2)
-    date_month_start=$(echo "$date_start" | cut -d'.' -f2)
+    date_month_end=${date_end#*.}
+    date_month_end=${date_month_end%%.*}
+    date_month_start=${date_start#*.}
+    date_month_start=${date_month_start%%.*}
 
     if [[ $date_month_end = "$date_month_start" ]]; then
       local date_day_end date_day_start
-      date_day_end=$(echo "$date_end" | cut -d'.' -f1)
-      date_day_start=$(echo "$date_start"| cut -d'.' -f1)
+      date_day_end=${date_end%%.*}
+      date_day_start=${date_start%%.*}
       echo "$date_end" $((10#$date_day_end - 10#$date_day_start)) 'days' >> "$file_estimate"
       continue
     else
